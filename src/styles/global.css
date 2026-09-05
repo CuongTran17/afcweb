@@ -127,14 +127,16 @@ h1, h2, h3 { font-family: "Be Vietnam Pro", Arial, sans-serif; }
 .section--intro, .section--departments-grid, .section--directory { background: var(--white); }
 .section--departments { color: var(--white); background: var(--navy); }
 .department-preview { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(255,255,255,.2); }
-.department-preview__item { min-height: 390px; padding: 2.25rem 1.9rem; border-right: 1px solid rgba(255,255,255,.14); display: flex; flex-direction: column; }
+.department-preview__item { min-height: 340px; padding: 2.25rem 1.9rem; border-right: 1px solid rgba(255,255,255,.14); display: flex; flex-direction: column; }
 .department-preview__item:last-child { border-right: 0; }
-.department-preview__topline { display: flex; align-items: center; justify-content: space-between; color: var(--cyan); font-size: .8rem; font-weight: 800; }
+.department-preview__topline { display: flex; align-items: center; color: var(--cyan); }
 .department-preview__topline svg { width: 30px; height: 30px; }
-.department-preview h3 { margin: 4.3rem 0 1rem; font-size: 1.5rem; }
+.department-preview h3 { margin: 2rem 0 1rem; font-size: 1.5rem; }
 .department-preview p { margin: 0; color: rgba(255,255,255,.62); font-size: 1.02rem; line-height: 1.7; }
-.department-preview a { display: inline-flex; align-items: center; gap: .5rem; margin-top: auto; color: var(--cyan-soft); font-size: .94rem; font-weight: 700; text-decoration: none; }
-.department-preview a svg { width: 18px; height: 18px; }
+.department-preview a { display: inline-flex; align-items: center; gap: .5rem; margin-top: auto; color: var(--cyan-soft); font-size: .94rem; font-weight: 700; text-decoration: none; transition: color 150ms ease; }
+.department-preview a:hover { color: var(--white); }
+.department-preview a svg { width: 18px; height: 18px; transition: transform 180ms ease; }
+.department-preview a:hover svg { transform: translateX(4px); }
 
 .section--events, .section--archive, .section--leadership { background: var(--paper); }
 .featured-events, .event-archive { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 2rem; }
@@ -295,9 +297,9 @@ h1, h2, h3 { font-family: "Be Vietnam Pro", Arial, sans-serif; }
   .intro-logo-panel { width: min(220px,65vw); margin: 0 auto; }
   .intro-story .intro-story__lead { font-size: 1.2rem; }
   .department-preview, .department-cards, .featured-events, .event-archive, .chairpersons, .leader-directory { grid-template-columns: 1fr; }
-  .department-preview__item, .department-preview__item:nth-child(2) { min-height: 290px; padding: 1.8rem 1.5rem; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.14); }
+  .department-preview__item, .department-preview__item:nth-child(2) { min-height: 250px; padding: 1.8rem 1.5rem; border-right: 0; border-bottom: 1px solid rgba(255,255,255,.14); }
   .department-preview__topline svg { width: 25px; height: 25px; }
-  .department-preview h3 { margin: 3.5rem 0 .8rem; font-size: 1.3rem; }
+  .department-preview h3 { margin: 1.5rem 0 .8rem; font-size: 1.3rem; }
   .department-preview p { font-size: 1rem; line-height: 1.65; }
   .department-preview a { font-size: .88rem; }
   .department-preview a svg { width: 17px; height: 17px; }

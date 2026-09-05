@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { StructurePage } from './StructurePage'
 
 describe('structure page', () => {
   it('uses the club hero photo behind the structure hero copy', () => {
-    render(<StructurePage />)
+    render(
+      <MemoryRouter>
+        <StructurePage />
+      </MemoryRouter>,
+    )
 
     expect(document.querySelector('.page-hero--structure img')).toHaveAttribute(
       'src',
@@ -13,7 +18,11 @@ describe('structure page', () => {
   })
 
   it('publishes the four departments and Gen 9 executive board', () => {
-    render(<StructurePage />)
+    render(
+      <MemoryRouter>
+        <StructurePage />
+      </MemoryRouter>,
+    )
 
     expect(screen.getByRole('heading', { name: 'Ban Chuyên môn' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Ban Truyền thông' })).toBeInTheDocument()
@@ -28,7 +37,11 @@ describe('structure page', () => {
   it('opens and closes department task popup modal', async () => {
     const { userEvent } = await import('@testing-library/user-event')
     const user = userEvent.setup()
-    render(<StructurePage />)
+    render(
+      <MemoryRouter>
+        <StructurePage />
+      </MemoryRouter>,
+    )
 
     const viewTaskButtons = screen.getAllByRole('button', { name: /Xem nhiệm vụ/i })
     expect(viewTaskButtons).toHaveLength(4)
@@ -45,5 +58,20 @@ describe('structure page', () => {
     await user.click(closeButton)
 
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
+
+  it('automatically opens department popup when ?ban query param is provided', () => {
+    render(
+      <MemoryRouter initialEntries={['/co-cau?ban=chuyen-mon']}>
+        <StructurePage />
+      </MemoryRouter>,
+    )
+
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Ban Chuyên môn', level: 2 })).toBeInTheDocument()
+    expect(
+      screen.getByText('Xây dựng nội dung học thuật, tài liệu và các chủ đề chuyên môn cho CLB.'),
+    ).toBeInTheDocument()
   })
 })

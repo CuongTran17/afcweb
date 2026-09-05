@@ -1,21 +1,53 @@
 import { useEffect, useState } from 'react'
 import { ArrowRight, X } from 'lucide-react'
+import { useSearchParams } from 'react-router-dom'
 import { LeaderPlaceholder } from '../components/LeaderPlaceholder'
 import { SectionHeading } from '../components/SectionHeading'
 import { departments, type Department } from '../data/departments'
 import { leadership } from '../data/leadership'
 
 export function StructurePage() {
-  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(null)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(() => {
+    const banParam = searchParams.get('ban')
+    if (banParam) {
+      return departments.find((d) => d.id === banParam) || null
+    }
+    return null
+  })
 
   const chairpersons = leadership.filter((leader) => leader.department === 'Ban Chủ nhiệm')
   const departmentLeaders = leadership.filter((leader) => leader.department !== 'Ban Chủ nhiệm')
 
   useEffect(() => {
+    const banParam = searchParams.get('ban')
+    if (banParam) {
+      const matched = departments.find((d) => d.id === banParam)
+      if (matched) {
+        setSelectedDepartment(matched)
+      }
+    }
+  }, [searchParams])
+
+  const handleOpenDepartment = (dept: Department) => {
+    setSelectedDepartment(dept)
+    setSearchParams({ ban: dept.id }, { replace: true })
+  }
+
+  const handleCloseDepartment = () => {
+    setSelectedDepartment(null)
+    if (searchParams.has('ban')) {
+      const newParams = new URLSearchParams(searchParams)
+      newParams.delete('ban')
+      setSearchParams(newParams, { replace: true })
+    }
+  }
+
+  useEffect(() => {
     if (!selectedDepartment) return
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
-        setSelectedDepartment(null)
+        handleCloseDepartment()
       }
     }
 
@@ -27,7 +59,7 @@ export function StructurePage() {
       document.body.style.overflow = previousOverflow
       window.removeEventListener('keydown', handleKeyDown)
     }
-  }, [selectedDepartment])
+  }, [selectedDepartment, searchParams])
 
   return (
     <main id="main-content">
@@ -61,7 +93,6 @@ export function StructurePage() {
             return (
               <article className="department-card" key={department.id}>
                 <div className="department-card__top">
-                  <span className="department-card__number">Ban {department.number}</span>
                   <div className="department-card__icon">
                     <Icon aria-hidden="true" />
                   </div>
@@ -71,7 +102,7 @@ export function StructurePage() {
                 <button
                   type="button"
                   className="department-card__button"
-                  onClick={() => setSelectedDepartment(department)}
+                  onClick={() => handleOpenDepartment(department)}
                 >
                   Xem nhiệm vụ
                   <ArrowRight aria-hidden="true" />
@@ -114,7 +145,7 @@ export function StructurePage() {
       {selectedDepartment && (
         <div
           className="department-modal-backdrop"
-          onClick={() => setSelectedDepartment(null)}
+          onClick={handleCloseDepartment}
           role="presentation"
         >
           <div
@@ -127,12 +158,11 @@ export function StructurePage() {
             <div className="department-modal__header">
               <div className="department-modal__badge">
                 <selectedDepartment.icon aria-hidden="true" />
-                <span>Ban {selectedDepartment.number}</span>
               </div>
               <button
                 type="button"
                 className="department-modal__close"
-                onClick={() => setSelectedDepartment(null)}
+                onClick={handleCloseDepartment}
                 aria-label="Đóng popup"
               >
                 <X aria-hidden="true" />
@@ -158,7 +188,7 @@ export function StructurePage() {
               <button
                 type="button"
                 className="button button--dark"
-                onClick={() => setSelectedDepartment(null)}
+                onClick={handleCloseDepartment}
               >
                 Đóng
               </button>
