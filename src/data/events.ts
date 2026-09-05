@@ -1,0 +1,164 @@
+export type EventCategory = 'academic' | 'community' | 'internal'
+
+export type EventItem = {
+  id: string
+  title: string
+  year: string
+  category: EventCategory
+  label: string
+  summary: string
+  images: string[]
+  featured?: boolean
+}
+
+const eventImage = (name: string) => `/images/events/${name}`
+
+export const events: EventItem[] = [
+  {
+    id: 'trading-challenge-2026',
+    title: 'Chung kết PTIT Trading Challenge',
+    year: '2026',
+    category: 'academic',
+    label: 'Học thuật',
+    summary: 'Dấu mốc khép lại hành trình trải nghiệm giao dịch, nơi kiến thức tài chính được đưa vào thử thách thực tế.',
+    images: [eventImage('trading-challenge-2.jpg'), eventImage('trading-challenge-1.jpg')],
+    featured: true,
+  },
+  {
+    id: 'moneyverse-2025',
+    title: 'The Moneyverse 2025',
+    year: '2025',
+    category: 'community',
+    label: 'Kết nối',
+    summary: 'AFC đồng hành cùng sân chơi tài chính quy mô lớn, kết nối sinh viên với những câu chuyện thực tế về tiền và tương lai.',
+    images: [eventImage('moneyverse-2025-2.jpg'), eventImage('moneyverse-2025-1.jpg')],
+    featured: true,
+  },
+  {
+    id: 'edu-exchange-workshop',
+    title: 'Workshop PTIT Edu Exchange',
+    year: '2026',
+    category: 'academic',
+    label: 'Học thuật',
+    summary: 'Chuỗi trao đổi kiến thức giúp sinh viên tiếp cận thị trường tài chính và tư duy đầu tư có hệ thống.',
+    images: [
+      eventImage('edu-exchange-workshop-2.jpg'),
+      eventImage('edu-exchange-workshop-3.jpg'),
+      eventImage('edu-exchange-workshop-1.jpg'),
+      eventImage('edu-exchange-workshop-4.jpg'),
+    ],
+    featured: true,
+  },
+  {
+    id: 'edu-exchange-training',
+    title: 'Lớp đào tạo PTIT Edu Exchange',
+    year: '2026',
+    category: 'academic',
+    label: 'Đào tạo',
+    summary: 'Các buổi đào tạo nền tảng, chuẩn bị kiến thức và kỹ năng trước khi sinh viên bước vào trải nghiệm giao dịch.',
+    images: [
+      eventImage('edu-exchange-training-2.jpg'),
+      eventImage('edu-exchange-training-3.jpg'),
+      eventImage('edu-exchange-training-1.jpg'),
+    ],
+  },
+  {
+    id: 'tax-accounting-seminar',
+    title: 'Hội thảo Kế toán Thuế và Hộ Kinh doanh',
+    year: '2026',
+    category: 'academic',
+    label: 'Chuyên môn',
+    summary: 'Cập nhật kiến thức thực tiễn về kế toán thuế và những vấn đề gần gũi với hoạt động của hộ kinh doanh.',
+    images: [eventImage('tax-accounting-seminar-2.jpg'), eventImage('tax-accounting-seminar-1.jpg')],
+  },
+  {
+    id: 'research-trends-seminar',
+    title: 'Xu hướng nghiên cứu hiện đại trong Kinh tế, Quản trị và Tài chính',
+    year: '2026',
+    category: 'academic',
+    label: 'Nghiên cứu',
+    summary: 'Không gian học thuật mở rộng góc nhìn về phương pháp và xu hướng nghiên cứu hiện đại.',
+    images: [eventImage('research-trends-seminar.jpg')],
+  },
+  {
+    id: 'acca-proud-community',
+    title: 'ACCA PROUD Community',
+    year: '2025',
+    category: 'academic',
+    label: 'Nghề nghiệp',
+    summary: 'Hoạt động kết nối sinh viên với cộng đồng nghề nghiệp kế toán, kiểm toán và tài chính.',
+    images: [eventImage('acca-proud-2.jpg'), eventImage('acca-proud-1.jpg')],
+  },
+  {
+    id: 'money-day-2025',
+    title: 'Money Day 2025',
+    year: '2025',
+    category: 'community',
+    label: 'Kết nối',
+    summary: 'Ngày hội lan tỏa kiến thức tài chính và tạo cơ hội giao lưu giữa sinh viên với các tổ chức đồng hành.',
+    images: [eventImage('money-day-2025.jpg')],
+  },
+  {
+    id: 'open-day-2026',
+    title: 'OpenDay PTIT 2026',
+    year: '2026',
+    category: 'community',
+    label: 'Cộng đồng',
+    summary: 'AFC đồng hành tư vấn, kết nối và giới thiệu môi trường học tập của Học viện tới học sinh và phụ huynh.',
+    images: [eventImage('open-day-2026-2.jpg'), eventImage('open-day-2026-1.jpg')],
+  },
+  {
+    id: 'youth-camp-2026',
+    title: 'Hội trại kỷ niệm ngày thành lập Đoàn Thanh niên Cộng sản Hồ Chí Minh',
+    year: '2026',
+    category: 'community',
+    label: 'Phong trào',
+    summary: 'Hoạt động tập thể gắn AFC với phong trào Đoàn và cộng đồng sinh viên PTIT.',
+    images: [eventImage('youth-camp-2026.jpg')],
+  },
+  {
+    id: 'freshmen-welcome-2026',
+    title: 'Đặt bàn chào Tân Sinh viên 2026',
+    year: '2026',
+    category: 'community',
+    label: 'Chào tân',
+    summary: 'Điểm gặp gỡ đầu tiên giúp tân sinh viên làm quen với AFC và cộng đồng Khoa Tài chính Kế toán 1.',
+    images: [eventImage('freshmen-welcome-2026.jpg')],
+  },
+  {
+    id: 'biggame-2026',
+    title: 'Biggame AFC 2026',
+    year: '2026',
+    category: 'internal',
+    label: 'Nội bộ',
+    summary: 'Một ngày vận động, phối hợp và sẻ chia giúp các thành viên hiểu nhau hơn ngoài công việc CLB.',
+    images: [eventImage('biggame-2026-2.jpg'), eventImage('biggame-2026-1.jpg')],
+  },
+  {
+    id: 'bonding-ba-vi',
+    title: 'Bonding Trip 2N1Đ Ba Vì',
+    year: '2026',
+    category: 'internal',
+    label: 'Gắn kết',
+    summary: 'Chuyến đi nội bộ dành thời gian cho kết nối, nghỉ ngơi và những kỷ niệm chung của tập thể AFC.',
+    images: [eventImage('bonding-ba-vi.jpg')],
+  },
+  {
+    id: 'first-meeting-gen-8',
+    title: 'First Meeting Gen 8',
+    year: '2025',
+    category: 'internal',
+    label: 'Nội bộ',
+    summary: 'Buổi gặp mặt mở đầu để thành viên Gen 8 làm quen với văn hóa, con người và cách AFC vận hành.',
+    images: [eventImage('first-meeting-gen-8.jpg')],
+  },
+  {
+    id: 'pitching-gen-8',
+    title: 'Pitching Tuyển Thành Viên Gen 8',
+    year: '2025',
+    category: 'internal',
+    label: 'Nội bộ',
+    summary: 'Hoạt động giúp ứng viên thể hiện tư duy, khả năng phối hợp và màu sắc cá nhân qua thử thách nhóm.',
+    images: [eventImage('pitching-gen-8-2.jpg'), eventImage('pitching-gen-8-1.jpg')],
+  },
+]
