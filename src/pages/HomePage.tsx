@@ -80,7 +80,7 @@ export function HomePage() {
 
       <StatStrip />
 
-      <section className="section section--intro" data-testid="afc-intro-section">
+      <section className="section section--intro home-snap-panel" data-testid="afc-intro-section">
         <div className="intro-logo-panel">
           <img
             src="/images/brand/afc-logo-background.png"
@@ -124,7 +124,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="section section--departments" data-testid="departments-section">
+      <section className="section section--departments home-snap-panel" data-testid="departments-section">
         <SectionHeading
           eyebrow="Cơ cấu hoạt động"
           title="Bốn ban, một tập thể"

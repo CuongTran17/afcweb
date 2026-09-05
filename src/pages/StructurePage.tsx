@@ -10,6 +10,9 @@ export function StructurePage() {
   return (
     <main id="main-content">
       <section className="page-hero page-hero--structure">
+        <div className="page-hero__media" aria-hidden="true">
+          <img src="/images/pages/structure-hero.jpg" alt="" decoding="async" />
+        </div>
         <div className="page-hero__index">02</div>
         <div className="page-hero__content">
           <p className="page-hero__eyebrow">Con người &amp; vận hành</p>

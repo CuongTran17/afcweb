@@ -56,7 +56,7 @@ export function HomeHero() {
   }
 
   return (
-    <section className="home-hero" aria-labelledby="home-title">
+    <section className="home-hero home-snap-panel" aria-labelledby="home-title" data-testid="hero-section">
       <div className="home-hero__media" aria-hidden="true">
         <img
           key={currentSlide.image}

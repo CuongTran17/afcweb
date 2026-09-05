@@ -72,6 +72,19 @@ describe('home page', () => {
     expect(screen.getByRole('link', { name: /Xem tất cả hoạt động/i })).toHaveAttribute('href', '/hoat-dong')
   })
 
+  it('marks only the hero, AFC intro, and departments as desktop full-screen snap panels', () => {
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByTestId('hero-section')).toHaveClass('home-snap-panel')
+    expect(screen.getByTestId('afc-intro-section')).toHaveClass('home-snap-panel')
+    expect(screen.getByTestId('departments-section')).toHaveClass('home-snap-panel')
+    expect(screen.getByTestId('events-section')).not.toHaveClass('home-snap-panel')
+  })
+
   it('rotates through event images every ten seconds and updates the caption', () => {
     vi.useFakeTimers()
     const { unmount } = render(
