@@ -24,4 +24,26 @@ describe('structure page', () => {
     expect(screen.getByText('Hoàng Vũ Long')).toBeInTheDocument()
     expect(screen.getAllByLabelText(/Ảnh thành viên sẽ được cập nhật/i).length).toBeGreaterThan(0)
   })
+
+  it('opens and closes department task popup modal', async () => {
+    const { userEvent } = await import('@testing-library/user-event')
+    const user = userEvent.setup()
+    render(<StructurePage />)
+
+    const viewTaskButtons = screen.getAllByRole('button', { name: /Xem nhiệm vụ/i })
+    expect(viewTaskButtons).toHaveLength(4)
+
+    await user.click(viewTaskButtons[0])
+
+    const dialog = screen.getByRole('dialog')
+    expect(dialog).toBeInTheDocument()
+    expect(
+      screen.getByText('Xây dựng nội dung học thuật, tài liệu và các chủ đề chuyên môn cho CLB.'),
+    ).toBeInTheDocument()
+
+    const closeButton = screen.getByRole('button', { name: 'Đóng popup' })
+    await user.click(closeButton)
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+  })
 })
