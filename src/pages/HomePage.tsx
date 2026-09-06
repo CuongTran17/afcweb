@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { DepartmentPreview } from '../components/DepartmentPreview'
@@ -6,26 +6,123 @@ import { EventCard } from '../components/EventCard'
 import { HomeHero } from '../components/HomeHero'
 import { SectionHeading } from '../components/SectionHeading'
 import { StatStrip } from '../components/StatStrip'
-import { events } from '../data/events'
+import { events, type EventItem } from '../data/events'
+import { getFeaturedHomeEvents } from '../lib/content/publicContent'
 
 const featuredEventIds = ['trading-challenge-2026', 'youth-camp-2026', 'biggame-2026']
+const taglineSegments = ['Từ', 'kiến thức', 'trên', 'giảng đường', 'đến', 'trải', 'nghiệm', 'trong', 'thực tế.']
+const taglinePopouts: Record<string, { alt: string; image: string; placement: string }> = {
+  'kiến thức': {
+    alt: 'Workshop PTIT Edu Exchange',
+    image: '/images/events/edu-exchange-workshop-2.jpg',
+    placement: 'tagline-reveal__popout--top-right',
+  },
+  'giảng đường': {
+    alt: 'Lớp đào tạo PTIT Edu Exchange',
+    image: '/images/events/edu-exchange-training-2.jpg',
+    placement: 'tagline-reveal__popout--top-left',
+  },
+  'thực tế.': {
+    alt: 'Chung kết PTIT Trading Challenge',
+    image: '/images/events/trading-challenge-2.jpg',
+    placement: 'tagline-reveal__popout--bottom-right',
+  },
+}
+
+function TaglineReveal() {
+  const sectionRef = useRef<HTMLElement | null>(null)
+
+  useEffect(() => {
+    if (!sectionRef.current || !('IntersectionObserver' in window)) return undefined
+
+    const words = Array.from(sectionRef.current.querySelectorAll<HTMLElement>('.tagline-reveal__word'))
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (!entry.isIntersecting) return
+
+          words.forEach((word, index) => {
+            window.setTimeout(() => word.classList.add('tagline-reveal__word--visible'), index * 70)
+          })
+          observer.disconnect()
+        })
+      },
+      { threshold: 0.45 },
+    )
+
+    observer.observe(sectionRef.current)
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <section
+      className="section tagline-reveal home-snap-panel"
+      ref={sectionRef}
+      aria-labelledby="tagline-title"
+      data-testid="tagline-section"
+    >
+      <div className="tagline-reveal__inner">
+        <h2 id="tagline-title" aria-label="Từ kiến thức trên giảng đường đến trải nghiệm trong thực tế.">
+          {taglineSegments.map((segment, index) => (
+            <span className="tagline-reveal__word-wrap" key={`${segment}-${index}`}>
+              {taglinePopouts[segment] ? (
+                <button
+                  className="tagline-reveal__word tagline-reveal__hotspot"
+                  data-testid="tagline-reveal-word"
+                  type="button"
+                  aria-label={`Xem hình ảnh minh họa cho ${segment.replace('.', '')}`}
+                  style={{ transitionDelay: `${index * 45}ms` }}
+                >
+                  <span>{segment}</span>
+                  <span className={`tagline-reveal__popout ${taglinePopouts[segment].placement}`}>
+                    <img src={taglinePopouts[segment].image} alt={taglinePopouts[segment].alt} />
+                  </span>
+                </button>
+              ) : (
+                <span
+                  className="tagline-reveal__word"
+                  data-testid="tagline-reveal-word"
+                  style={{ transitionDelay: `${index * 45}ms` }}
+                >
+                  {segment}
+                </span>
+              )}{' '}
+            </span>
+          ))}
+        </h2>
+        <p>
+          AFC kết nối kiến thức chuyên môn, trải nghiệm thực tế và những con người cùng chung định hướng.
+        </p>
+      </div>
+    </section>
+  )
+}
 
 export function HomePage() {
-  const featuredEvents = featuredEventIds.map((id) => {
-    const event = events.find((item) => item.id === id)
+  const [featuredEvents, setFeaturedEvents] = useState<EventItem[]>(() =>
+    featuredEventIds
+      .map((id) => events.find((item) => item.id === id))
+      .filter((item): item is EventItem => Boolean(item)),
+  )
 
-    if (!event) throw new Error(`Không tìm thấy sự kiện nổi bật: ${id}`)
-
-    return event
-  })
+  useEffect(() => {
+    getFeaturedHomeEvents()
+      .then((items) => {
+        if (items && items.length > 0) {
+          setFeaturedEvents(items)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     let isSnapping = false
-    let previousScrollY = window.scrollY
 
     const getNextSnapTarget = () => {
       const selectors = [
         '[data-testid="afc-intro-section"]',
+        '[data-testid="tagline-section"]',
         '[data-testid="departments-section"]',
         '[data-testid="events-section"]',
         '.site-footer',
@@ -55,22 +152,10 @@ export function HomePage() {
       if (snapToNextSection()) event.preventDefault()
     }
 
-    const handleHeroScroll = () => {
-      const currentScrollY = window.scrollY
-      const movingDown = currentScrollY > previousScrollY
-      previousScrollY = currentScrollY
-
-      if (isSnapping || !movingDown || currentScrollY <= 0) return
-
-      snapToNextSection()
-    }
-
     window.addEventListener('wheel', handleHeroWheel, { passive: false })
-    window.addEventListener('scroll', handleHeroScroll, { passive: true })
 
     return () => {
       window.removeEventListener('wheel', handleHeroWheel)
-      window.removeEventListener('scroll', handleHeroScroll)
     }
   }, [])
 
@@ -123,6 +208,8 @@ export function HomePage() {
           </div>
         </div>
       </section>
+
+      <TaglineReveal />
 
       <section className="section section--departments home-snap-panel" data-testid="departments-section">
         <SectionHeading

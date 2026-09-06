@@ -3,6 +3,7 @@ import { ArrowDownRight, ArrowRight, ChevronLeft, ChevronRight, Pause, Play } fr
 import { Link } from 'react-router-dom'
 import { events } from '../data/events'
 import { siteInfo } from '../data/siteInfo'
+import { getPublicBanners } from '../lib/content/publicContent'
 
 const AUTO_ADVANCE_MS = 10_000
 
@@ -19,7 +20,7 @@ const heroSlideConfig = [
   { eventId: 'biggame-2026', position: 'center 48%' },
 ]
 
-const heroSlides = heroSlideConfig.map(({ eventId, image, position }) => {
+const defaultHeroSlides = heroSlideConfig.map(({ eventId, image, position }) => {
   const event = events.find(({ id }) => id === eventId)
 
   if (!event) throw new Error(`Không tìm thấy sự kiện hero: ${eventId}`)
@@ -27,32 +28,57 @@ const heroSlides = heroSlideConfig.map(({ eventId, image, position }) => {
   return { image: image ?? event.images[0], title: event.title, position }
 })
 
+export type HeroSlide = {
+  image: string
+  title: string
+  position?: string
+}
+
 export function HomeHero() {
+  const [slides, setSlides] = useState<HeroSlide[]>(defaultHeroSlides)
   const [currentIndex, setCurrentIndex] = useState(0)
   const [paused, setPaused] = useState(false)
-  const currentSlide = heroSlides[currentIndex]
+  const currentSlide = slides[currentIndex] || slides[0] || defaultHeroSlides[0]
+
+  useEffect(() => {
+    getPublicBanners()
+      .then((banners) => {
+        if (banners && banners.length > 0) {
+          setSlides(
+            banners.map((b) => ({
+              image: b.imageUrl,
+              title: b.title,
+              position: 'center 45%',
+            })),
+          )
+          setCurrentIndex(0)
+        }
+      })
+      .catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (paused) return undefined
 
     const timeout = window.setTimeout(() => {
-      setCurrentIndex((index) => (index + 1) % heroSlides.length)
+      setCurrentIndex((index) => (index + 1) % slides.length)
     }, AUTO_ADVANCE_MS)
 
     return () => window.clearTimeout(timeout)
-  }, [currentIndex, paused])
+  }, [currentIndex, paused, slides.length])
 
   useEffect(() => {
+    if (slides.length <= 1) return
     const nextImage = new Image()
-    nextImage.src = heroSlides[(currentIndex + 1) % heroSlides.length].image
-  }, [currentIndex])
+    nextImage.src = slides[(currentIndex + 1) % slides.length].image
+  }, [currentIndex, slides])
 
   const showPrevious = () => {
-    setCurrentIndex((index) => (index - 1 + heroSlides.length) % heroSlides.length)
+    setCurrentIndex((index) => (index - 1 + slides.length) % slides.length)
   }
 
   const showNext = () => {
-    setCurrentIndex((index) => (index + 1) % heroSlides.length)
+    setCurrentIndex((index) => (index + 1) % slides.length)
   }
 
   return (
@@ -92,8 +118,8 @@ export function HomeHero() {
           <button type="button" aria-label="Ảnh sự kiện trước" title="Ảnh trước" onClick={showPrevious}>
             <ChevronLeft aria-hidden="true" />
           </button>
-          <span aria-label={`Ảnh ${currentIndex + 1} trên ${heroSlides.length}`}>
-            {currentIndex + 1} / {heroSlides.length}
+          <span aria-label={`Ảnh ${currentIndex + 1} trên ${slides.length}`}>
+            {currentIndex + 1} / {slides.length}
           </span>
           <button type="button" aria-label="Ảnh sự kiện tiếp theo" title="Ảnh tiếp theo" onClick={showNext}>
             <ChevronRight aria-hidden="true" />

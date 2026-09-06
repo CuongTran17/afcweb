@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { Menu, X } from 'lucide-react'
 import { NavLink, useLocation } from 'react-router-dom'
 
 const links = [
@@ -31,14 +30,16 @@ export function SiteHeader() {
           </NavLink>
 
           <button
-            className="menu-toggle"
+            className={`menu-toggle${open ? ' menu-toggle--open' : ''}`}
             type="button"
             aria-label={open ? 'Đóng menu' : 'Mở menu'}
             aria-expanded={open}
             aria-controls="primary-navigation"
             onClick={() => setOpen((current) => !current)}
           >
-            {open ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+            <span aria-hidden="true" className="menu-toggle__line" />
+            <span aria-hidden="true" className="menu-toggle__line" />
+            <span aria-hidden="true" className="menu-toggle__line" />
           </button>
 
           <nav

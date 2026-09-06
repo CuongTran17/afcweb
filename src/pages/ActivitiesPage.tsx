@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { EventCard } from '../components/EventCard'
 import { SectionHeading } from '../components/SectionHeading'
-import { events, type EventCategory } from '../data/events'
+import { events as staticEvents, type EventCategory, type EventItem } from '../data/events'
+import { getPublicEvents } from '../lib/content/publicContent'
 
 type FilterValue = 'all' | EventCategory
 
@@ -13,10 +14,22 @@ const filters: Array<{ value: FilterValue; label: string }> = [
 ]
 
 export function ActivitiesPage() {
+  const [allEvents, setAllEvents] = useState<EventItem[]>(staticEvents)
   const [activeFilter, setActiveFilter] = useState<FilterValue>('all')
+
+  useEffect(() => {
+    getPublicEvents()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setAllEvents(data)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
   const visibleEvents = activeFilter === 'all'
-    ? events
-    : events.filter((event) => event.category === activeFilter)
+    ? allEvents
+    : allEvents.filter((event) => event.category === activeFilter)
 
   return (
     <main id="main-content">

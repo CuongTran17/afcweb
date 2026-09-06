@@ -72,7 +72,7 @@ describe('home page', () => {
     expect(screen.getByRole('link', { name: /Xem tất cả hoạt động/i })).toHaveAttribute('href', '/hoat-dong')
   })
 
-  it('marks only the hero, AFC intro, and departments as desktop full-screen snap panels', () => {
+  it('marks the hero, AFC intro, tagline, and departments as desktop full-screen snap panels', () => {
     render(
       <MemoryRouter>
         <HomePage />
@@ -81,8 +81,54 @@ describe('home page', () => {
 
     expect(screen.getByTestId('hero-section')).toHaveClass('home-snap-panel')
     expect(screen.getByTestId('afc-intro-section')).toHaveClass('home-snap-panel')
+    expect(screen.getByTestId('tagline-section')).toHaveClass('home-snap-panel')
     expect(screen.getByTestId('departments-section')).toHaveClass('home-snap-panel')
     expect(screen.getByTestId('events-section')).not.toHaveClass('home-snap-panel')
+  })
+
+  it('adds a scroll reveal tagline between the intro and departments', () => {
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>,
+    )
+
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Từ kiến thức trên giảng đường đến trải nghiệm trong thực tế.',
+      }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'AFC kết nối kiến thức chuyên môn, trải nghiệm thực tế và những con người cùng chung định hướng.',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getAllByTestId('tagline-reveal-word').length).toBeGreaterThan(8)
+  })
+
+  it('turns the three key tagline words into event image popouts', () => {
+    render(
+      <MemoryRouter>
+        <HomePage />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho kiến thức' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho giảng đường' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho thực tế' })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'Workshop PTIT Edu Exchange' })).toHaveAttribute(
+      'src',
+      '/images/events/edu-exchange-workshop-2.jpg',
+    )
+    expect(screen.getByRole('img', { name: 'Lớp đào tạo PTIT Edu Exchange' })).toHaveAttribute(
+      'src',
+      '/images/events/edu-exchange-training-2.jpg',
+    )
+    expect(screen.getByRole('img', { name: 'Chung kết PTIT Trading Challenge' })).toHaveAttribute(
+      'src',
+      '/images/events/trading-challenge-2.jpg',
+    )
   })
 
   it('rotates through event images every ten seconds and updates the caption', () => {
@@ -175,24 +221,36 @@ describe('home page', () => {
     document.body.append(contact)
 
     const intro = screen.getByTestId('afc-intro-section')
+    const tagline = screen.getByTestId('tagline-section')
     const departments = screen.getByTestId('departments-section')
     const events = screen.getByTestId('events-section')
 
     const introScrollIntoView = vi.fn()
+    const taglineScrollIntoView = vi.fn()
     const departmentsScrollIntoView = vi.fn()
     const eventsScrollIntoView = vi.fn()
     const contactScrollIntoView = vi.fn()
     intro.scrollIntoView = introScrollIntoView
+    tagline.scrollIntoView = taglineScrollIntoView
     departments.scrollIntoView = departmentsScrollIntoView
     events.scrollIntoView = eventsScrollIntoView
     contact!.scrollIntoView = contactScrollIntoView
 
     Object.defineProperty(intro, 'getBoundingClientRect', { configurable: true, value: () => ({ top: -20 }) })
-    Object.defineProperty(departments, 'getBoundingClientRect', { configurable: true, value: () => ({ top: 320 }) })
+    Object.defineProperty(tagline, 'getBoundingClientRect', { configurable: true, value: () => ({ top: 320 }) })
+    Object.defineProperty(departments, 'getBoundingClientRect', { configurable: true, value: () => ({ top: 900 }) })
     Object.defineProperty(events, 'getBoundingClientRect', { configurable: true, value: () => ({ top: 900 }) })
     Object.defineProperty(contact, 'getBoundingClientRect', { configurable: true, value: () => ({ top: 1400 }) })
 
     try {
+      fireEvent.wheel(window, { deltaY: 18 })
+      expect(taglineScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+
+      Object.defineProperty(tagline, 'getBoundingClientRect', { configurable: true, value: () => ({ top: -20 }) })
+      Object.defineProperty(departments, 'getBoundingClientRect', { configurable: true, value: () => ({ top: 280 }) })
+      Object.defineProperty(events, 'getBoundingClientRect', { configurable: true, value: () => ({ top: 900 }) })
+
+      act(() => vi.advanceTimersByTime(900))
       fireEvent.wheel(window, { deltaY: 18 })
       expect(departmentsScrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
 
@@ -215,7 +273,7 @@ describe('home page', () => {
     }
   })
 
-  it('snaps from the hero to the AFC intro when the page starts scrolling', () => {
+  it('does not force a snap during ordinary page scroll events', () => {
     render(
       <MemoryRouter>
         <HomePage />
@@ -232,7 +290,7 @@ describe('home page', () => {
 
     fireEvent.scroll(window)
 
-    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+    expect(scrollIntoView).not.toHaveBeenCalled()
   })
 
   it('does not snap back to the AFC intro when visitors scroll upward toward the hero', () => {

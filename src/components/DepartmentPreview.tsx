@@ -1,11 +1,36 @@
+import { useEffect, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { departments } from '../data/departments'
+import { departments as staticDepartments, type Department } from '../data/departments'
+import { getPublicDepartments } from '../lib/content/publicContent'
 
-export function DepartmentPreview() {
+type DepartmentPreviewProps = {
+  departments?: Department[]
+}
+
+export function DepartmentPreview({ departments: propDepartments }: DepartmentPreviewProps = {}) {
+  const [departmentList, setDepartmentList] = useState<Department[]>(
+    propDepartments || staticDepartments,
+  )
+
+  useEffect(() => {
+    if (propDepartments) {
+      setDepartmentList(propDepartments)
+      return
+    }
+
+    getPublicDepartments()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setDepartmentList(data)
+        }
+      })
+      .catch(() => {})
+  }, [propDepartments])
+
   return (
     <div className="department-preview">
-      {departments.map((department) => {
+      {departmentList.map((department) => {
         const Icon = department.icon
 
         return (

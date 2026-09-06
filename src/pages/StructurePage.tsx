@@ -3,31 +3,52 @@ import { ArrowRight, X } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { LeaderPlaceholder } from '../components/LeaderPlaceholder'
 import { SectionHeading } from '../components/SectionHeading'
-import { departments, type Department } from '../data/departments'
-import { leadership } from '../data/leadership'
+import { departments as staticDepartments, type Department } from '../data/departments'
+import { leadership as staticLeadership, type Leader } from '../data/leadership'
+import { getPublicDepartments, getPublicLeadership } from '../lib/content/publicContent'
 
 export function StructurePage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const [departmentList, setDepartmentList] = useState<Department[]>(staticDepartments)
+  const [leaderList, setLeaderList] = useState<Leader[]>(staticLeadership)
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(() => {
     const banParam = searchParams.get('ban')
     if (banParam) {
-      return departments.find((d) => d.id === banParam) || null
+      return staticDepartments.find((d) => d.id === banParam) || null
     }
     return null
   })
 
-  const chairpersons = leadership.filter((leader) => leader.department === 'Ban Chủ nhiệm')
-  const departmentLeaders = leadership.filter((leader) => leader.department !== 'Ban Chủ nhiệm')
+  useEffect(() => {
+    getPublicDepartments()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setDepartmentList(data)
+        }
+      })
+      .catch(() => {})
+
+    getPublicLeadership()
+      .then((data) => {
+        if (data && data.length > 0) {
+          setLeaderList(data)
+        }
+      })
+      .catch(() => {})
+  }, [])
+
+  const chairpersons = leaderList.filter((leader) => leader.department === 'Ban Chủ nhiệm')
+  const departmentLeaders = leaderList.filter((leader) => leader.department !== 'Ban Chủ nhiệm')
 
   useEffect(() => {
     const banParam = searchParams.get('ban')
     if (banParam) {
-      const matched = departments.find((d) => d.id === banParam)
+      const matched = departmentList.find((d) => d.id === banParam)
       if (matched) {
         setSelectedDepartment(matched)
       }
     }
-  }, [searchParams])
+  }, [searchParams, departmentList])
 
   const handleOpenDepartment = (dept: Department) => {
     setSelectedDepartment(dept)
@@ -88,7 +109,7 @@ export function StructurePage() {
           description="Mỗi ban đảm nhiệm một mảng chuyên biệt và phối hợp chặt chẽ để triển khai toàn diện các hoạt động của CLB."
         />
         <div className="department-cards">
-          {departments.map((department) => {
+          {departmentList.map((department) => {
             const Icon = department.icon
             return (
               <article className="department-card" key={department.id}>
