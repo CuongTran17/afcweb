@@ -45,7 +45,7 @@ export function AdminConfirmModal({
               display: 'flex',
               alignItems: 'center',
               gap: '0.5rem',
-              color: confirmVariant === 'danger' ? '#c92a2a' : '#0f172a',
+              color: confirmVariant === 'danger' ? '#b42318' : '#282638',
             }}
           >
             <AlertTriangle size={20} />

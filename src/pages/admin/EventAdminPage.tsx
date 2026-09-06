@@ -563,7 +563,7 @@ export function EventAdminPage() {
                           <span
                             style={{
                               fontWeight: 600,
-                              color: idx === 0 ? '#c92a2a' : '#64748b',
+                              color: idx === 0 ? '#176f90' : '#64748b',
                             }}
                           >
                             {idx === 0 ? 'Ảnh bìa' : `#${idx + 1}`}

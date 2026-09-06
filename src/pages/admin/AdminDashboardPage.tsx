@@ -3,6 +3,41 @@ import { Link } from 'react-router-dom'
 import { Image, Calendar, Layers, Users, ArrowUpRight, CheckCircle2, ShieldCheck } from 'lucide-react'
 import { getSupabaseClient } from '../../lib/supabase/client'
 
+const dashboardCards = [
+  {
+    key: 'banners',
+    label: 'Banner Hero',
+    description: 'Banner hiển thị trang đầu',
+    to: '/admin/banners',
+    action: 'Quản lý Banner',
+    icon: Image,
+  },
+  {
+    key: 'events',
+    label: 'Sự kiện & Hoạt động',
+    description: 'Bài viết, dấu ấn nổi bật',
+    to: '/admin/events',
+    action: 'Quản lý Sự kiện',
+    icon: Calendar,
+  },
+  {
+    key: 'departments',
+    label: 'Ban Chuyên trách',
+    description: 'Mô tả và danh mục nhiệm vụ',
+    to: '/admin/departments',
+    action: 'Cập nhật Nhiệm vụ',
+    icon: Layers,
+  },
+  {
+    key: 'leaders',
+    label: 'Ban Điều hành',
+    description: 'Thành viên theo nhiệm kỳ',
+    to: '/admin/leaders',
+    action: 'Quản lý Nhân sự',
+    icon: Users,
+  },
+] as const
+
 export function AdminDashboardPage() {
   const [stats, setStats] = useState({
     banners: 0,
@@ -38,149 +73,49 @@ export function AdminDashboardPage() {
 
   return (
     <div>
-      <div className="admin-card" style={{ background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', color: '#ffffff' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="admin-card admin-dashboard-hero">
+        <div className="admin-dashboard-hero__inner">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-              <ShieldCheck size={20} color="#4ade80" />
-              <span style={{ fontSize: '0.875rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            <div className="admin-dashboard-hero__badge">
+              <ShieldCheck size={20} aria-hidden="true" />
+              <span>
                 Hệ thống Quản trị Nội dung AFC
               </span>
             </div>
-            <h1 style={{ fontSize: '1.75rem', fontWeight: 800, margin: '0 0 0.5rem', color: '#ffffff' }}>
+            <h2>
               Bảng điều khiển Trung tâm
-            </h1>
-            <p style={{ margin: 0, color: '#cbd5e1', fontSize: '0.95rem' }}>
+            </h2>
+            <p>
               Cập nhật bài viết, sự kiện, hình ảnh trang chủ, cơ cấu ban chuyên trách và danh sách ban điều hành theo nhiệm kỳ.
             </p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255, 255, 255, 0.1)', padding: '0.5rem 1rem', borderRadius: '0.5rem' }}>
-            <CheckCircle2 size={16} color="#4ade80" />
-            <span style={{ fontSize: '0.875rem', fontWeight: 500 }}>Supabase: Đã kết nối</span>
+          <div className="admin-connection-pill">
+            <CheckCircle2 size={16} aria-hidden="true" />
+            <span>Supabase: Đã kết nối</span>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1.25rem', marginBottom: '2rem' }}>
-        <div className="admin-card" style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#64748b', marginBottom: '1rem' }}>
-              <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>Banner Hero</span>
-              <Image size={20} color="#c92a2a" />
+      <div className="admin-stat-grid">
+        {dashboardCards.map(({ key, label, description, to, action, icon: Icon }) => (
+          <div className="admin-card admin-stat-card" key={key}>
+            <div>
+              <div className="admin-stat-card__top">
+                <span className="admin-stat-card__label">{label}</span>
+                <span className="admin-stat-card__icon">
+                  <Icon size={20} aria-hidden="true" />
+                </span>
+              </div>
+              <div className="admin-stat-card__value">
+                {isLoading ? '...' : stats[key]}
+              </div>
+              <p className="admin-stat-card__desc">{description}</p>
             </div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a' }}>
-              {isLoading ? '...' : stats.banners}
-            </div>
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-              Banner hiển thị trang đầu
-            </p>
+            <Link to={to} className="admin-stat-card__link">
+              {action} <ArrowUpRight size={16} aria-hidden="true" />
+            </Link>
           </div>
-          <Link
-            to="/admin/banners"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              marginTop: '1.25rem',
-              color: '#c92a2a',
-              textDecoration: 'none',
-              fontWeight: 600,
-              fontSize: '0.875rem',
-            }}
-          >
-            Quản lý Banner <ArrowUpRight size={16} />
-          </Link>
-        </div>
-
-        <div className="admin-card" style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#64748b', marginBottom: '1rem' }}>
-              <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>Sự kiện & Hoạt động</span>
-              <Calendar size={20} color="#c92a2a" />
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a' }}>
-              {isLoading ? '...' : stats.events}
-            </div>
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-              Bài viết, dấu ấn nổi bật
-            </p>
-          </div>
-          <Link
-            to="/admin/events"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              marginTop: '1.25rem',
-              color: '#c92a2a',
-              textDecoration: 'none',
-              fontWeight: 600,
-              fontSize: '0.875rem',
-            }}
-          >
-            Quản lý Sự kiện <ArrowUpRight size={16} />
-          </Link>
-        </div>
-
-        <div className="admin-card" style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#64748b', marginBottom: '1rem' }}>
-              <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>Ban Chuyên trách</span>
-              <Layers size={20} color="#c92a2a" />
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a' }}>
-              4
-            </div>
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-              Mô tả và danh mục nhiệm vụ
-            </p>
-          </div>
-          <Link
-            to="/admin/departments"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              marginTop: '1.25rem',
-              color: '#c92a2a',
-              textDecoration: 'none',
-              fontWeight: 600,
-              fontSize: '0.875rem',
-            }}
-          >
-            Cập nhật Nhiệm vụ <ArrowUpRight size={16} />
-          </Link>
-        </div>
-
-        <div className="admin-card" style={{ margin: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', color: '#64748b', marginBottom: '1rem' }}>
-              <span style={{ fontWeight: 600, fontSize: '0.875rem' }}>Ban Điều hành</span>
-              <Users size={20} color="#c92a2a" />
-            </div>
-            <div style={{ fontSize: '2rem', fontWeight: 800, color: '#0f172a' }}>
-              {isLoading ? '...' : stats.leaders}
-            </div>
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#64748b' }}>
-              Thành viên theo nhiệm kỳ
-            </p>
-          </div>
-          <Link
-            to="/admin/leaders"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.25rem',
-              marginTop: '1.25rem',
-              color: '#c92a2a',
-              textDecoration: 'none',
-              fontWeight: 600,
-              fontSize: '0.875rem',
-            }}
-          >
-            Quản lý Nhân sự <ArrowUpRight size={16} />
-          </Link>
-        </div>
+        ))}
       </div>
     </div>
   )

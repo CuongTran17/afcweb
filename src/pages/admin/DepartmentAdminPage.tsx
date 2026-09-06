@@ -215,7 +215,7 @@ export function DepartmentAdminPage() {
               textAlign: 'center',
             }}
           >
-            <Layers size={28} color="#c92a2a" style={{ margin: '0 auto 0.75rem' }} />
+            <Layers size={28} color="#176f90" style={{ margin: '0 auto 0.75rem' }} />
             <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem', color: '#0f172a' }}>
               Chưa có dữ liệu 4 ban chuyên trách
             </h3>
@@ -272,7 +272,7 @@ export function DepartmentAdminPage() {
                     }}
                   >
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Layers size={20} color="#c92a2a" />
+                      <Layers size={20} color="#176f90" />
                       <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700, color: '#0f172a' }}>
                         {dept.name}
                       </h3>

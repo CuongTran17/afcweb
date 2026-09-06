@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { ArrowRight, X } from 'lucide-react'
 import { useSearchParams } from 'react-router-dom'
 import { LeaderPlaceholder } from '../components/LeaderPlaceholder'
@@ -9,6 +9,7 @@ import { getPublicDepartments, getPublicLeadership } from '../lib/content/public
 
 export function StructurePage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const departmentsSectionRef = useRef<HTMLElement | null>(null)
   const [departmentList, setDepartmentList] = useState<Department[]>(staticDepartments)
   const [leaderList, setLeaderList] = useState<Leader[]>(staticLeadership)
   const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(() => {
@@ -82,6 +83,33 @@ export function StructurePage() {
     }
   }, [selectedDepartment, searchParams])
 
+  useEffect(() => {
+    const section = departmentsSectionRef.current
+    if (!section) return
+
+    const cards = Array.from(section.querySelectorAll<HTMLElement>('.department-card'))
+    if (!('IntersectionObserver' in window)) {
+      cards.forEach((card) => card.classList.add('department-card--visible'))
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('department-card--visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.18, rootMargin: '0px 0px -8% 0px' },
+    )
+
+    cards.forEach((card) => observer.observe(card))
+
+    return () => observer.disconnect()
+  }, [departmentList])
+
   return (
     <main id="main-content">
       <section className="page-hero page-hero--structure">
@@ -102,18 +130,25 @@ export function StructurePage() {
       </section>
 
       {/* 1. Bốn ban chuyên trách */}
-      <section className="section section--departments-grid">
+      <section className="section section--departments-grid" ref={departmentsSectionRef}>
         <SectionHeading
           eyebrow="Cơ cấu tổ chức"
           title="Bốn ban chuyên trách"
           description="Mỗi ban đảm nhiệm một mảng chuyên biệt và phối hợp chặt chẽ để triển khai toàn diện các hoạt động của CLB."
+          inverse
         />
         <div className="department-cards">
-          {departmentList.map((department) => {
+          {departmentList.map((department, index) => {
             const Icon = department.icon
             return (
-              <article className="department-card" key={department.id}>
+              <article
+                className="department-card"
+                data-number={department.number}
+                key={department.id}
+                style={{ transitionDelay: `${index * 90}ms` }}
+              >
                 <div className="department-card__top">
+                  <span className="department-card__number">{department.number}</span>
                   <div className="department-card__icon">
                     <Icon aria-hidden="true" />
                   </div>

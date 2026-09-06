@@ -44,43 +44,16 @@ export function AdminLoginPage() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        backgroundColor: '#0f172a',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1.5rem',
-      }}
-    >
-      <div
-        style={{
-          backgroundColor: '#ffffff',
-          borderRadius: '0.75rem',
-          maxWidth: '420px',
-          width: '100%',
-          padding: '2.5rem',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
-        }}
-      >
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <div
-            style={{
-              display: 'inline-flex',
-              padding: '0.75rem',
-              backgroundColor: '#fee2e2',
-              borderRadius: '9999px',
-              color: '#c92a2a',
-              marginBottom: '1rem',
-            }}
-          >
-            <Lock size={28} />
+    <div className="admin-login">
+      <div className="admin-login__card">
+        <div className="admin-login__header">
+          <div className="admin-login__icon">
+            <Lock size={28} aria-hidden="true" />
           </div>
-          <h1 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#0f172a', margin: 0 }}>
+          <h1>
             Quản trị viên AFC
           </h1>
-          <p style={{ fontSize: '0.875rem', color: '#64748b', marginTop: '0.5rem' }}>
+          <p>
             Đăng nhập hệ thống quản lý nội dung CLB
           </p>
         </div>
@@ -178,19 +151,9 @@ export function AdminLoginPage() {
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: '1.5rem', borderTop: '1px solid #f1f5f9', paddingTop: '1.25rem' }}>
-          <Link
-            to="/"
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.35rem',
-              fontSize: '0.875rem',
-              color: '#64748b',
-              textDecoration: 'none',
-            }}
-          >
-            <ArrowLeft size={16} />
+        <div className="admin-login__footer">
+          <Link to="/">
+            <ArrowLeft size={16} aria-hidden="true" />
             Quay lại trang chủ AFC
           </Link>
         </div>
