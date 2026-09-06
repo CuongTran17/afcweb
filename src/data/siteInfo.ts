@@ -10,7 +10,7 @@ export const siteInfo = {
   academy: 'Học viện Công nghệ Bưu chính Viễn thông',
   audience: 'Sinh viên thuộc Khoa Tài chính Kế toán 1',
   summary:
-    'AFC là môi trường học thuật và rèn luyện chuyên môn dành cho sinh viên yêu thích Tài chính, Kế toán và Fintech tại PTIT.',
+    'AFC là môi trường học tập, trải nghiệm và kết nối dành cho sinh viên PTIT yêu thích Kế toán, Fintech và Phân tích dữ liệu trong tài chính kinh doanh.',
   purpose:
     'CLB tạo điều kiện để sinh viên nâng cao kiến thức, phát triển kỹ năng thực tiễn, mở rộng kết nối nghề nghiệp và đồng hành cùng các hoạt động chuyên môn của Khoa.',
   stats: [
