@@ -6,6 +6,7 @@ import {
   setBannerStatus,
   toggleEventFeaturedHome,
   createEvent,
+  createDefaultDepartments,
   updateEvent,
   updateDepartment,
 } from './adminContent'
@@ -184,5 +185,58 @@ describe('adminContent repository', () => {
     expect(insertRespMock).toHaveBeenCalledWith([
       expect.objectContaining({ department_id: 'dept-1', content: 'Nhiệm vụ mới', status: 'published' }),
     ])
+  })
+
+  it('createDefaultDepartments upserts the four default departments and missing responsibilities', async () => {
+    const upsertMock = vi.fn().mockReturnValue({
+      select: vi.fn().mockResolvedValue({
+        data: [
+          { id: 'dept-1', slug: 'chuyen-mon', sort_order: 1 },
+          { id: 'dept-2', slug: 'truyen-thong', sort_order: 2 },
+          { id: 'dept-3', slug: 'su-kien', sort_order: 3 },
+          { id: 'dept-4', slug: 'doi-ngoai', sort_order: 4 },
+        ],
+        error: null,
+      }),
+    })
+    const insertRespMock = vi.fn().mockResolvedValue({ error: null })
+    const listOrderMock = vi.fn().mockResolvedValue({ data: [], error: null })
+
+    const mockClient = {
+      from: vi.fn((table: string) => {
+        if (table === 'departments') {
+          return {
+            upsert: upsertMock,
+            select: vi.fn().mockReturnValue({
+              order: listOrderMock,
+            }),
+          }
+        }
+        if (table === 'department_responsibilities') {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                neq: vi.fn().mockResolvedValue({ data: [], error: null }),
+              }),
+            }),
+            insert: insertRespMock,
+          }
+        }
+        return {}
+      }),
+    } as unknown as SupabaseClient
+
+    await createDefaultDepartments(mockClient)
+
+    expect(upsertMock).toHaveBeenCalledWith(
+      expect.arrayContaining([
+        expect.objectContaining({ slug: 'chuyen-mon', name: 'Ban Chuyên môn' }),
+        expect.objectContaining({ slug: 'truyen-thong', name: 'Ban Truyền thông' }),
+        expect.objectContaining({ slug: 'su-kien', name: 'Ban Sự kiện' }),
+        expect.objectContaining({ slug: 'doi-ngoai', name: 'Ban Đối ngoại' }),
+      ]),
+      { onConflict: 'slug' },
+    )
+    expect(insertRespMock).toHaveBeenCalledTimes(4)
   })
 })

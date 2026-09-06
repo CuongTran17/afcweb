@@ -13,6 +13,57 @@ import type {
   SupabaseLeaderRow,
 } from '../supabase/types'
 
+export const defaultDepartmentSeeds = [
+  {
+    slug: 'chuyen-mon',
+    name: 'Ban Chuyên môn',
+    description: 'Phụ trách nội dung học thuật và chuyên môn của CLB.',
+    icon_key: 'BookOpenCheck',
+    sort_order: 1,
+    responsibilities: [
+      'Xây dựng nội dung học thuật, tài liệu và các chủ đề chuyên môn cho CLB.',
+      'Phối hợp phát triển nội dung cho các chương trình, cuộc thi và hoạt động của Khoa.',
+      'Hỗ trợ thành viên nâng cao kiến thức và kỹ năng chuyên môn.',
+    ],
+  },
+  {
+    slug: 'truyen-thong',
+    name: 'Ban Truyền thông',
+    description: 'Xây dựng hình ảnh và truyền tải các hoạt động của AFC.',
+    icon_key: 'Megaphone',
+    sort_order: 2,
+    responsibilities: [
+      'Xây dựng nội dung và hình ảnh truyền thông cho các hoạt động của AFC.',
+      'Quản lý các kênh truyền thông và duy trì hình ảnh của CLB.',
+      'Phụ trách thiết kế, chụp ảnh, quay phim và sản xuất nội dung truyền thông.',
+    ],
+  },
+  {
+    slug: 'su-kien',
+    name: 'Ban Sự kiện',
+    description: 'Lên kế hoạch và triển khai các chương trình, sự kiện của CLB.',
+    icon_key: 'CalendarCheck2',
+    sort_order: 3,
+    responsibilities: [
+      'Lập kế hoạch và triển khai các chương trình, sự kiện của CLB.',
+      'Xây dựng kịch bản, timeline và phương án vận hành chương trình.',
+      'Phụ trách hậu cần, nhân sự và phối hợp các bộ phận trong quá trình tổ chức.',
+    ],
+  },
+  {
+    slug: 'doi-ngoai',
+    name: 'Ban Đối ngoại',
+    description: 'Kết nối đối tác và mở rộng nguồn lực cho các hoạt động của AFC.',
+    icon_key: 'Handshake',
+    sort_order: 4,
+    responsibilities: [
+      'Tìm kiếm và kết nối với đối tác, diễn giả và các đơn vị bên ngoài.',
+      'Phối hợp xây dựng quyền lợi và duy trì mối quan hệ với các đối tác.',
+      'Hỗ trợ huy động nguồn lực cho các chương trình và hoạt động của AFC.',
+    ],
+  },
+] as const
+
 // Banners
 export async function listAdminBanners(client: SupabaseClient): Promise<SupabaseBannerRow[]> {
   const { data, error } = await client
@@ -205,6 +256,66 @@ export async function listAdminDepartments(
       (r) => r.status !== 'archived',
     ),
   }))
+}
+
+export async function createDefaultDepartments(
+  client: SupabaseClient,
+): Promise<SupabaseDepartmentWithResponsibilities[]> {
+  const departmentPayloads = defaultDepartmentSeeds.map((dept) => ({
+    slug: dept.slug,
+    name: dept.name,
+    description: dept.description,
+    icon_key: dept.icon_key,
+    sort_order: dept.sort_order,
+    status: 'published' as const,
+  }))
+
+  const { data: upsertedDepartments, error } = await client
+    .from('departments')
+    .upsert(departmentPayloads, { onConflict: 'slug' })
+    .select('*')
+
+  if (error) throw error
+
+  const departments = (upsertedDepartments as SupabaseDepartmentRow[]) || []
+
+  for (const dept of departments) {
+    const seed = defaultDepartmentSeeds.find((item) => item.slug === dept.slug)
+    if (!seed) continue
+
+    const { data: existingResponsibilities, error: existingError } = await client
+      .from('department_responsibilities')
+      .select('content')
+      .eq('department_id', dept.id)
+      .neq('status', 'archived')
+
+    if (existingError) throw existingError
+
+    const existingContent = new Set(
+      ((existingResponsibilities as Array<{ content: string }> | null) || []).map((item) =>
+        item.content.trim(),
+      ),
+    )
+
+    const missingResponsibilities = seed.responsibilities
+      .filter((content) => !existingContent.has(content))
+      .map((content, index) => ({
+        department_id: dept.id,
+        content,
+        sort_order: index + 1,
+        status: 'published' as const,
+      }))
+
+    if (missingResponsibilities.length > 0) {
+      const { error: insertError } = await client
+        .from('department_responsibilities')
+        .insert(missingResponsibilities)
+
+      if (insertError) throw insertError
+    }
+  }
+
+  return listAdminDepartments(client)
 }
 
 export async function updateDepartment(

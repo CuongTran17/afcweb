@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Plus, Trash2, Save, Loader2, CheckCircle2, Layers } from 'lucide-react'
 import {
+  createDefaultDepartments,
   listAdminDepartments,
   updateDepartment,
 } from '../../lib/content/adminContent'
@@ -11,6 +12,7 @@ export function DepartmentAdminPage() {
   const [departments, setDepartments] = useState<SupabaseDepartmentWithResponsibilities[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [savingId, setSavingId] = useState<string | null>(null)
+  const [isSeeding, setIsSeeding] = useState(false)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
@@ -19,6 +21,19 @@ export function DepartmentAdminPage() {
     Record<string, { description: string; responsibilities: string[] }>
   >({})
 
+  const hydrateDepartmentForms = (data: SupabaseDepartmentWithResponsibilities[]) => {
+    const initialForm: Record<string, { description: string; responsibilities: string[] }> = {}
+    data.forEach((dept) => {
+      initialForm[dept.id] = {
+        description: dept.description,
+        responsibilities: (dept.department_responsibilities || [])
+          .sort((a, b) => a.sort_order - b.sort_order)
+          .map((r) => r.content),
+      }
+    })
+    setFormData(initialForm)
+  }
+
   const loadDepartments = async () => {
     const supabase = getSupabaseClient()
     if (!supabase) return
@@ -26,17 +41,7 @@ export function DepartmentAdminPage() {
       setIsLoading(true)
       const data = await listAdminDepartments(supabase)
       setDepartments(data)
-
-      const initialForm: Record<string, { description: string; responsibilities: string[] }> = {}
-      data.forEach((dept) => {
-        initialForm[dept.id] = {
-          description: dept.description,
-          responsibilities: (dept.department_responsibilities || [])
-            .sort((a, b) => a.sort_order - b.sort_order)
-            .map((r) => r.content),
-        }
-      })
-      setFormData(initialForm)
+      hydrateDepartmentForms(data)
     } catch (err: any) {
       setErrorMessage(err?.message || 'Không thể tải danh sách ban chuyên trách.')
     } finally {
@@ -47,6 +52,25 @@ export function DepartmentAdminPage() {
   useEffect(() => {
     loadDepartments()
   }, [])
+
+  const handleSeedDepartments = async () => {
+    const supabase = getSupabaseClient()
+    if (!supabase) return
+
+    try {
+      setIsSeeding(true)
+      setSuccessMessage(null)
+      setErrorMessage(null)
+      const data = await createDefaultDepartments(supabase)
+      setDepartments(data)
+      hydrateDepartmentForms(data)
+      setSuccessMessage('Đã khởi tạo dữ liệu 4 ban chuyên trách.')
+    } catch (err: any) {
+      setErrorMessage(err?.message || 'Khởi tạo dữ liệu 4 ban thất bại.')
+    } finally {
+      setIsSeeding(false)
+    }
+  }
 
   const handleDescriptionChange = (deptId: string, desc: string) => {
     setFormData((prev) => ({
@@ -180,6 +204,43 @@ export function DepartmentAdminPage() {
           <div style={{ padding: '2rem', textAlign: 'center', color: '#64748b' }}>
             <Loader2 size={24} className="animate-spin" style={{ margin: '0 auto' }} />
             <p style={{ marginTop: '0.5rem' }}>Đang tải thông tin ban chuyên trách...</p>
+          </div>
+        ) : departments.length === 0 ? (
+          <div
+            style={{
+              padding: '2rem',
+              border: '1px dashed #cbd5e1',
+              borderRadius: '0.5rem',
+              backgroundColor: '#f8fafc',
+              textAlign: 'center',
+            }}
+          >
+            <Layers size={28} color="#c92a2a" style={{ margin: '0 auto 0.75rem' }} />
+            <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.125rem', color: '#0f172a' }}>
+              Chưa có dữ liệu 4 ban chuyên trách
+            </h3>
+            <p style={{ margin: '0 auto 1rem', maxWidth: '520px', color: '#64748b', fontSize: '0.875rem' }}>
+              Bảng departments trong Supabase đang trống. Khởi tạo dữ liệu mặc định để chỉnh sửa Ban Chuyên môn, Ban Truyền thông, Ban Sự kiện và Ban Đối ngoại.
+            </p>
+            <button
+              type="button"
+              className="admin-btn admin-btn--primary"
+              onClick={handleSeedDepartments}
+              disabled={isSeeding}
+              style={{ margin: '0 auto' }}
+            >
+              {isSeeding ? (
+                <>
+                  <Loader2 size={16} className="animate-spin" />
+                  <span>Đang khởi tạo...</span>
+                </>
+              ) : (
+                <>
+                  <Plus size={16} />
+                  <span>Khởi tạo dữ liệu 4 ban</span>
+                </>
+              )}
+            </button>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>

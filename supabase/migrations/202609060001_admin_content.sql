@@ -230,3 +230,63 @@ on storage.objects for update
 to authenticated
 using (bucket_id = 'afc-media' and public.is_active_admin())
 with check (bucket_id = 'afc-media' and public.is_active_admin());
+
+grant usage on schema public to anon, authenticated;
+
+grant select on public.admin_profiles to authenticated;
+
+grant select on public.banners to anon, authenticated;
+grant select on public.events to anon, authenticated;
+grant select on public.event_images to anon, authenticated;
+grant select on public.departments to anon, authenticated;
+grant select on public.department_responsibilities to anon, authenticated;
+grant select on public.leaders to anon, authenticated;
+
+grant insert, update on public.banners to authenticated;
+grant insert, update on public.events to authenticated;
+grant insert, update on public.event_images to authenticated;
+grant insert, update on public.departments to authenticated;
+grant insert, update on public.department_responsibilities to authenticated;
+grant insert, update on public.leaders to authenticated;
+
+insert into public.departments (slug, name, description, icon_key, sort_order, status)
+values
+  ('chuyen-mon', 'Ban Chuyên môn', 'Phụ trách nội dung học thuật và chuyên môn của CLB.', 'BookOpenCheck', 1, 'published'),
+  ('truyen-thong', 'Ban Truyền thông', 'Xây dựng hình ảnh và truyền tải các hoạt động của AFC.', 'Megaphone', 2, 'published'),
+  ('su-kien', 'Ban Sự kiện', 'Lên kế hoạch và triển khai các chương trình, sự kiện của CLB.', 'CalendarCheck2', 3, 'published'),
+  ('doi-ngoai', 'Ban Đối ngoại', 'Kết nối đối tác và mở rộng nguồn lực cho các hoạt động của AFC.', 'Handshake', 4, 'published')
+on conflict (slug) do update
+set name = excluded.name,
+    description = coalesce(nullif(public.departments.description, ''), excluded.description),
+    icon_key = excluded.icon_key,
+    sort_order = excluded.sort_order,
+    status = case
+      when public.departments.status = 'archived' then public.departments.status
+      else excluded.status
+    end;
+
+insert into public.department_responsibilities (department_id, content, sort_order, status)
+select d.id, seed.content, seed.sort_order, 'published'
+from (
+  values
+    ('chuyen-mon', 'Xây dựng nội dung học thuật, tài liệu và các chủ đề chuyên môn cho CLB.', 1),
+    ('chuyen-mon', 'Phối hợp phát triển nội dung cho các chương trình, cuộc thi và hoạt động của Khoa.', 2),
+    ('chuyen-mon', 'Hỗ trợ thành viên nâng cao kiến thức và kỹ năng chuyên môn.', 3),
+    ('truyen-thong', 'Xây dựng nội dung và hình ảnh truyền thông cho các hoạt động của AFC.', 1),
+    ('truyen-thong', 'Quản lý các kênh truyền thông và duy trì hình ảnh của CLB.', 2),
+    ('truyen-thong', 'Phụ trách thiết kế, chụp ảnh, quay phim và sản xuất nội dung truyền thông.', 3),
+    ('su-kien', 'Lập kế hoạch và triển khai các chương trình, sự kiện của CLB.', 1),
+    ('su-kien', 'Xây dựng kịch bản, timeline và phương án vận hành chương trình.', 2),
+    ('su-kien', 'Phụ trách hậu cần, nhân sự và phối hợp các bộ phận trong quá trình tổ chức.', 3),
+    ('doi-ngoai', 'Tìm kiếm và kết nối với đối tác, diễn giả và các đơn vị bên ngoài.', 1),
+    ('doi-ngoai', 'Phối hợp xây dựng quyền lợi và duy trì mối quan hệ với các đối tác.', 2),
+    ('doi-ngoai', 'Hỗ trợ huy động nguồn lực cho các chương trình và hoạt động của AFC.', 3)
+) as seed(department_slug, content, sort_order)
+join public.departments d on d.slug = seed.department_slug
+where not exists (
+  select 1
+  from public.department_responsibilities existing
+  where existing.department_id = d.id
+    and existing.content = seed.content
+    and existing.status <> 'archived'
+);
