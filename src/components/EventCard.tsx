@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import type { EventItem } from '../data/events'
 
 type EventCardProps = {
@@ -52,7 +53,11 @@ export function EventCard({ event, featured = false }: EventCardProps) {
           <span>{event.label}</span>
           <time>{event.year}</time>
         </div>
-        <h3>{event.title}</h3>
+        <h3>
+          <Link to={`/hoat-dong/${event.id}`} aria-label={`Xem chi tiết ${event.title}`}>
+            {event.title}
+          </Link>
+        </h3>
         <p>{event.summary}</p>
       </div>
     </article>
