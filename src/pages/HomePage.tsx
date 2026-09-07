@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, BookOpenCheck, CalendarCheck2, Handshake, type LucideIcon } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { DepartmentPreview } from '../components/DepartmentPreview'
 import { EventCard } from '../components/EventCard'
@@ -11,20 +11,26 @@ import { getFeaturedHomeEvents } from '../lib/content/publicContent'
 
 const featuredEventIds = ['trading-challenge-2026', 'youth-camp-2026', 'biggame-2026']
 const taglineSegments = ['Từ', 'kiến thức', 'trên', 'giảng đường', 'đến', 'trải', 'nghiệm', 'trong', 'thực tế.']
-const taglinePopouts: Record<string, { alt: string; image: string; placement: string }> = {
+const taglinePopouts: Record<string, { alt: string; icon: LucideIcon; image: string; label: string; placement: string }> = {
   'kiến thức': {
     alt: 'Workshop PTIT Edu Exchange',
+    icon: BookOpenCheck,
     image: '/images/events/edu-exchange-workshop-2.jpg',
+    label: 'Chuyên môn',
     placement: 'tagline-reveal__popout--top-right',
   },
   'giảng đường': {
     alt: 'Lớp đào tạo PTIT Edu Exchange',
+    icon: CalendarCheck2,
     image: '/images/events/edu-exchange-training-2.jpg',
+    label: 'Sự kiện',
     placement: 'tagline-reveal__popout--top-left',
   },
   'thực tế.': {
     alt: 'Chung kết PTIT Trading Challenge',
+    icon: Handshake,
     image: '/images/events/trading-challenge-2.jpg',
+    label: 'Kết nối',
     placement: 'tagline-reveal__popout--bottom-right',
   },
 }
@@ -33,14 +39,21 @@ function TaglineReveal() {
   const sectionRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    if (!sectionRef.current || !('IntersectionObserver' in window)) return undefined
+    if (!sectionRef.current) return undefined
 
     const words = Array.from(sectionRef.current.querySelectorAll<HTMLElement>('.tagline-reveal__word'))
+    if (!('IntersectionObserver' in window)) {
+      sectionRef.current.classList.add('tagline-reveal--visible')
+      words.forEach((word) => word.classList.add('tagline-reveal__word--visible'))
+      return undefined
+    }
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (!entry.isIntersecting) return
 
+          sectionRef.current?.classList.add('tagline-reveal--visible')
           words.forEach((word, index) => {
             window.setTimeout(() => word.classList.add('tagline-reveal__word--visible'), index * 70)
           })
@@ -67,18 +80,27 @@ function TaglineReveal() {
           {taglineSegments.map((segment, index) => (
             <span className="tagline-reveal__word-wrap" key={`${segment}-${index}`}>
               {taglinePopouts[segment] ? (
-                <button
-                  className="tagline-reveal__word tagline-reveal__hotspot"
-                  data-testid="tagline-reveal-word"
-                  type="button"
-                  aria-label={`Xem hình ảnh minh họa cho ${segment.replace('.', '')}`}
-                  style={{ transitionDelay: `${index * 45}ms` }}
-                >
-                  <span>{segment}</span>
-                  <span className={`tagline-reveal__popout ${taglinePopouts[segment].placement}`}>
-                    <img src={taglinePopouts[segment].image} alt={taglinePopouts[segment].alt} />
-                  </span>
-                </button>
+                (() => {
+                  const PopoutIcon = taglinePopouts[segment].icon
+                  return (
+                    <button
+                      className="tagline-reveal__word tagline-reveal__hotspot"
+                      data-testid="tagline-reveal-word"
+                      type="button"
+                      aria-label={`Xem hình ảnh minh họa cho ${segment.replace('.', '')}`}
+                      style={{ transitionDelay: `${index * 45}ms` }}
+                    >
+                      <span>{segment}</span>
+                      <span className={`tagline-reveal__popout ${taglinePopouts[segment].placement}`}>
+                        <img src={taglinePopouts[segment].image} alt={taglinePopouts[segment].alt} />
+                        <span className="tagline-reveal__popout-chip">
+                          <PopoutIcon aria-hidden="true" />
+                          {taglinePopouts[segment].label}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })()
               ) : (
                 <span
                   className="tagline-reveal__word"

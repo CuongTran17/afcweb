@@ -114,9 +114,11 @@ describe('home page', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho kiến thức' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho giảng đường' })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho thực tế' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho kiến thức' })).toHaveTextContent(
+      'Chuyên môn',
+    )
+    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho giảng đường' })).toHaveTextContent('Sự kiện')
+    expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho thực tế' })).toHaveTextContent('Kết nối')
     expect(screen.getByRole('img', { name: 'Workshop PTIT Edu Exchange' })).toHaveAttribute(
       'src',
       '/images/events/edu-exchange-workshop-2.jpg',
