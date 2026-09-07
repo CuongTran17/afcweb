@@ -77,6 +77,7 @@ export type SupabaseEventRow = {
   id: string
   slug: string
   title: string
+  month: string
   year: string
   category: EventCategory
   label: string
@@ -94,6 +95,7 @@ export type SupabaseEventInsert = {
   id?: string
   slug: string
   title: string
+  month?: string
   year: string
   category: EventCategory
   label: string

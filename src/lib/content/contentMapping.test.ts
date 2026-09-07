@@ -20,9 +20,11 @@ describe('contentMapping', () => {
         title: 'Event 2',
         slug: 'event-2',
         year: '2026',
+        month: '8',
         category: 'Chuyên môn',
         label: 'Workshop',
         summary: 'Summary 2',
+        content: 'Event 2 content',
         featured_home: false,
         status: 'published' as const,
         sort_order: 2,
@@ -37,11 +39,13 @@ describe('contentMapping', () => {
       {
         id: '1',
         title: 'Event 1',
-        slug: 'event-1',
-        year: '2025',
+        slug: 'sample-event',
+        year: '2026',
+        month: '8',
         category: 'Sự kiện',
         label: 'Gala',
         summary: 'Summary 1',
+        content: 'Noi dung chi tiet cua su kien.',
         featured_home: true,
         status: 'published' as const,
         sort_order: 1,
@@ -53,8 +57,13 @@ describe('contentMapping', () => {
 
     const mapped = mapEventRowsToEventItems(rawEvents)
     expect(mapped).toHaveLength(2)
-    expect(mapped[0].id).toBe('event-1')
-    expect(mapped[0].featured).toBe(true)
+    expect(mapped[0]).toMatchObject({
+      id: 'sample-event',
+      month: '8',
+      year: '2026',
+      content: 'Noi dung chi tiet cua su kien.',
+      featured: true,
+    })
     expect(mapped[1].id).toBe('event-2')
     expect(mapped[1].images).toEqual(['/img-1.jpg', '/img-2.jpg'])
   })

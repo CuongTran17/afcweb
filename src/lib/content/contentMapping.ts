@@ -27,10 +27,12 @@ export function mapEventRowsToEventItems(rows: SupabaseEventWithImages[]): Event
     .map((event) => ({
       id: event.slug,
       title: event.title,
+      month: event.month || '',
       year: event.year,
       category: event.category,
       label: event.label,
       summary: event.summary,
+      content: event.content || '',
       images: (event.event_images || [])
         .filter((image) => image.status === 'published')
         .slice()
