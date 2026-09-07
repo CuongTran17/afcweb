@@ -93,9 +93,10 @@ export async function getPublicEventBySlug(
       .select('*, event_images(*)')
       .eq('status', 'published')
       .eq('slug', slug)
-      .single()
+      .maybeSingle()
 
-    if (error || !data) return staticEvent
+    if (error) return staticEvent
+    if (!data) return null
 
     return mapEventRowsToEventItems([data as SupabaseEventWithImages])[0] || staticEvent
   } catch {

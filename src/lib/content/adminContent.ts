@@ -219,11 +219,13 @@ export async function updateEvent(
 
   if (images !== undefined) {
     // Soft archive previous images (no hard delete)
-    await client
+    const { error: archiveError } = await client
       .from('event_images')
       .update({ status: 'archived', updated_at: new Date().toISOString() })
       .eq('event_id', id)
       .neq('status', 'archived')
+
+    if (archiveError) throw archiveError
 
     if (images.length > 0) {
       const imagePayloads = images.map((img, idx) => toImagePayload(img, id, idx))

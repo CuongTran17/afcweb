@@ -60,8 +60,8 @@ export function EventPreviewPage() {
       <EventImageSlider title={event.title} images={event.images} />
       <p className="admin-preview__summary">{event.summary}</p>
       <div className="admin-preview__content">
-        {paragraphs.map((paragraph) => (
-          <p key={paragraph}>{paragraph}</p>
+        {paragraphs.map((paragraph, index) => (
+          <p key={`${paragraph}-${index}`}>{paragraph}</p>
         ))}
       </div>
     </article>

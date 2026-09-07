@@ -60,8 +60,8 @@ export function EventDetailPage() {
         <section className="event-detail__body">
           <p className="event-detail__summary">{event.summary}</p>
           <div className="event-detail__content">
-            {paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+            {paragraphs.map((paragraph, index) => (
+              <p key={`${paragraph}-${index}`}>{paragraph}</p>
             ))}
           </div>
           <Link to="/hoat-dong" className="event-detail__back">

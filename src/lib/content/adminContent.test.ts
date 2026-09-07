@@ -179,6 +179,52 @@ describe('adminContent repository', () => {
     expect(deleteMock).not.toHaveBeenCalled()
   })
 
+  it('does not insert replacement event images when archiving existing images fails', async () => {
+    const mockUpdatedEvent = { id: 'evt-1', title: 'Updated Event' }
+    const archiveError = new Error('Archive failed')
+    const insertImageMock = vi.fn().mockResolvedValue({ error: null })
+
+    const mockClient = {
+      from: vi.fn((table: string) => {
+        if (table === 'events') {
+          return {
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                select: vi.fn().mockReturnValue({
+                  single: vi.fn().mockResolvedValue({ data: mockUpdatedEvent, error: null }),
+                }),
+              }),
+            }),
+          }
+        }
+        if (table === 'event_images') {
+          return {
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                neq: vi.fn().mockResolvedValue({ error: archiveError }),
+              }),
+            }),
+            insert: insertImageMock,
+          }
+        }
+        return {}
+      }),
+    } as unknown as SupabaseClient
+
+    await expect(
+      updateEvent(mockClient, 'evt-1', { title: 'Updated Event' } as any, [
+        {
+          image_url: 'https://example.com/new.jpg',
+          storage_path: 'events/new.jpg',
+          alt: 'Updated Image',
+          file_size: 100000,
+          mime_type: 'image/jpeg',
+        },
+      ]),
+    ).rejects.toThrow('Archive failed')
+    expect(insertImageMock).not.toHaveBeenCalled()
+  })
+
   it('loads an admin event by slug regardless of draft status', async () => {
     const mockEvent = {
       id: 'event-id',

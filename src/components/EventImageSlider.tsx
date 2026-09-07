@@ -43,7 +43,7 @@ export function EventImageSlider({ images, title, showThumbnails = true }: Event
           {safeImages.map((image, index) => (
             <button
               type="button"
-              key={image}
+              key={`${image}-${index}`}
               className={
                 index === activeIndex ? 'event-slider__thumb event-slider__thumb--active' : 'event-slider__thumb'
               }
