@@ -1,5 +1,5 @@
 import { useEffect, useState, useId } from 'react'
-import { Plus, Edit2, Star, Eye, EyeOff, Trash2, X, Loader2 } from 'lucide-react'
+import { Plus, Edit2, Star, Eye, EyeOff, Trash2, X, Loader2, ArrowUp, ArrowDown } from 'lucide-react'
 import { AdminConfirmModal } from '../../components/admin/AdminConfirmModal'
 import { ImageUploadField } from '../../components/admin/ImageUploadField'
 import {
@@ -138,6 +138,29 @@ export function EventAdminPage() {
 
   const handleRemoveImage = (index: number) => {
     setImageList((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const moveImage = (index: number, direction: -1 | 1) => {
+    setImageList((prev) => {
+      const nextIndex = index + direction
+      if (nextIndex < 0 || nextIndex >= prev.length) return prev
+      const next = [...prev]
+      ;[next[index], next[nextIndex]] = [next[nextIndex], next[index]]
+      return next
+    })
+  }
+
+  const setCoverImage = (index: number) => {
+    setImageList((prev) => {
+      if (index <= 0) return prev
+      const next = [...prev]
+      const [selected] = next.splice(index, 1)
+      return [selected, ...next]
+    })
+  }
+
+  const updateImageAlt = (index: number, alt: string) => {
+    setImageList((prev) => prev.map((img, idx) => (idx === index ? { ...img, alt } : img)))
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -303,6 +326,7 @@ export function EventAdminPage() {
               <thead>
                 <tr>
                   <th style={{ width: '60px' }}>Ảnh</th>
+                  <th style={{ width: '90px' }}>Số ảnh</th>
                   <th>Tên Sự kiện & Tóm tắt</th>
                   <th style={{ width: '90px' }}>Năm</th>
                   <th style={{ width: '110px' }}>Thể loại</th>
@@ -337,6 +361,9 @@ export function EventAdminPage() {
                           }}
                         />
                       )}
+                    </td>
+                    <td style={{ fontWeight: 600 }}>
+                      {evt.event_images?.filter((img) => img.status === 'published').length || 0} ảnh
                     </td>
                     <td>
                       <div style={{ fontWeight: 600, color: '#0f172a' }}>{evt.title}</div>
@@ -587,39 +614,79 @@ export function EventAdminPage() {
                         <img
                           src={img.url}
                           alt={`Ảnh sự kiện ${idx + 1}`}
-                          style={{ width: '100%', height: '80px', objectFit: 'cover' }}
+                          style={{ width: '100%', height: '88px', objectFit: 'cover' }}
                         />
                         <div
                           style={{
-                            padding: '0.25rem 0.5rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
+                            padding: '0.5rem',
+                            display: 'grid',
+                            gap: '0.45rem',
                             fontSize: '0.75rem',
                           }}
                         >
-                          <span
-                            style={{
-                              fontWeight: 600,
-                              color: idx === 0 ? '#176f90' : '#64748b',
-                            }}
-                          >
-                            {idx === 0 ? 'Ảnh bìa' : `#${idx + 1}`}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(idx)}
-                            style={{
-                              border: 'none',
-                              background: 'transparent',
-                              cursor: 'pointer',
-                              color: '#dc2626',
-                              padding: 0,
-                            }}
-                            title="Xóa ảnh này"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span
+                              style={{
+                                fontWeight: 600,
+                                color: idx === 0 ? '#176f90' : '#64748b',
+                              }}
+                            >
+                              {idx === 0 ? 'Ảnh bìa' : `#${idx + 1}`}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(idx)}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                color: '#dc2626',
+                                padding: 0,
+                              }}
+                              title="Xóa ảnh này"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                          <input
+                            aria-label={`Alt ảnh ${idx + 1}`}
+                            value={img.alt || ''}
+                            onChange={(e) => updateImageAlt(idx, e.target.value)}
+                            className="admin-input"
+                            style={{ padding: '0.45rem 0.5rem', fontSize: '0.75rem' }}
+                          />
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '0.35rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => setCoverImage(idx)}
+                              disabled={idx === 0}
+                              className="admin-btn admin-btn--secondary"
+                              aria-label={`Đặt ảnh ${idx + 1} làm ảnh bìa`}
+                              style={{ padding: '0.45rem 0.5rem', justifyContent: 'center' }}
+                            >
+                              Bìa
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveImage(idx, -1)}
+                              disabled={idx === 0}
+                              className="admin-btn admin-btn--secondary"
+                              aria-label={`Đưa ảnh ${idx + 1} lên trước`}
+                              style={{ width: '34px', height: '34px', padding: 0, justifyContent: 'center' }}
+                            >
+                              <ArrowUp size={13} aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveImage(idx, 1)}
+                              disabled={idx === imageList.length - 1}
+                              className="admin-btn admin-btn--secondary"
+                              aria-label={`Đưa ảnh ${idx + 1} xuống sau`}
+                              style={{ width: '34px', height: '34px', padding: 0, justifyContent: 'center' }}
+                            >
+                              <ArrowDown size={13} aria-hidden="true" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}

@@ -66,4 +66,73 @@ describe('EventAdminPage', () => {
       [],
     )
   })
+
+  it('shows image count and lets admins manage cover, order, and alt text', async () => {
+    const user = userEvent.setup()
+    mocks.listAdminEvents.mockResolvedValue([
+      {
+        id: 'evt-1',
+        title: 'Sự kiện có nhiều ảnh',
+        slug: 'su-kien-co-nhieu-anh',
+        year: '2026',
+        month: '8',
+        category: 'academic',
+        label: 'Học thuật',
+        summary: 'Tom tat.',
+        content: 'Noi dung.',
+        featured_home: false,
+        sort_order: 1,
+        status: 'published',
+        event_images: [
+          {
+            id: 'img-1',
+            event_id: 'evt-1',
+            image_url: '/images/events/one.jpg',
+            storage_path: 'events/one.jpg',
+            alt: 'Anh dau',
+            file_size: 100000,
+            mime_type: 'image/jpeg',
+            sort_order: 1,
+            status: 'published',
+          },
+          {
+            id: 'img-2',
+            event_id: 'evt-1',
+            image_url: '/images/events/two.jpg',
+            storage_path: 'events/two.jpg',
+            alt: 'Anh hai',
+            file_size: 120000,
+            mime_type: 'image/jpeg',
+            sort_order: 2,
+            status: 'published',
+          },
+        ],
+      },
+    ])
+    mocks.updateEvent.mockResolvedValue({ id: 'evt-1', title: 'Sự kiện có nhiều ảnh' })
+
+    render(<EventAdminPage />)
+
+    expect(await screen.findByText('2 ảnh')).toBeInTheDocument()
+    await user.click(screen.getByTitle('Chỉnh sửa'))
+
+    expect(screen.getByRole('textbox', { name: 'Alt ảnh 1' })).toHaveValue('Anh dau')
+    expect(screen.getByRole('button', { name: 'Đặt ảnh 2 làm ảnh bìa' })).toBeInTheDocument()
+
+    await user.clear(screen.getByRole('textbox', { name: 'Alt ảnh 1' }))
+    await user.type(screen.getByRole('textbox', { name: 'Alt ảnh 1' }), 'Anh bia moi')
+    await user.click(screen.getByRole('button', { name: 'Đặt ảnh 2 làm ảnh bìa' }))
+    await user.click(screen.getByRole('button', { name: 'Lưu thay đổi' }))
+
+    await waitFor(() => expect(mocks.updateEvent).toHaveBeenCalled())
+    expect(mocks.updateEvent).toHaveBeenCalledWith(
+      expect.anything(),
+      'evt-1',
+      expect.anything(),
+      [
+        expect.objectContaining({ image_url: '/images/events/two.jpg', alt: 'Anh hai' }),
+        expect.objectContaining({ image_url: '/images/events/one.jpg', alt: 'Anh bia moi' }),
+      ],
+    )
+  })
 })
