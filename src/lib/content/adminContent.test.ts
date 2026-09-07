@@ -7,6 +7,7 @@ import {
   toggleEventFeaturedHome,
   createEvent,
   createDefaultDepartments,
+  getAdminEventBySlug,
   updateEvent,
   updateDepartment,
 } from './adminContent'
@@ -61,16 +62,17 @@ describe('adminContent repository', () => {
 
   it('createEvent inserts event and multiple images with metadata', async () => {
     const mockEvent = { id: 'evt-1', title: 'Test Event' }
+    const insertEventMock = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: mockEvent, error: null }),
+      }),
+    })
     const insertImageMock = vi.fn().mockResolvedValue({ error: null })
     const mockClient = {
       from: vi.fn((table: string) => {
         if (table === 'events') {
           return {
-            insert: vi.fn().mockReturnValue({
-              select: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({ data: mockEvent, error: null }),
-              }),
-            }),
+            insert: insertEventMock,
           }
         }
         if (table === 'event_images') {
@@ -87,8 +89,22 @@ describe('adminContent repository', () => {
       { image_url: 'https://example.com/img2.jpg', storage_path: 'events/img2.jpg', alt: 'Test 2', file_size: 120000, mime_type: 'image/jpeg' },
     ]
 
-    const result = await createEvent(mockClient, { title: 'Test Event' } as any, images)
+    const result = await createEvent(
+      mockClient,
+      {
+        title: 'Test Event',
+        month: '8',
+        content: 'Noi dung chi tiet cua su kien.',
+      } as any,
+      images,
+    )
     expect(result).toEqual(mockEvent)
+    expect(insertEventMock).toHaveBeenCalledWith([
+      expect.objectContaining({
+        month: '8',
+        content: 'Noi dung chi tiet cua su kien.',
+      }),
+    ])
     expect(insertImageMock).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({ event_id: 'evt-1', image_url: 'https://example.com/img1.jpg', sort_order: 1 }),
@@ -99,6 +115,13 @@ describe('adminContent repository', () => {
 
   it('updateEvent soft-archives existing images instead of hard-deleting them', async () => {
     const mockUpdatedEvent = { id: 'evt-1', title: 'Updated Event' }
+    const updateEventMock = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: mockUpdatedEvent, error: null }),
+        }),
+      }),
+    })
     const softArchiveMock = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         neq: vi.fn().mockResolvedValue({ error: null }),
@@ -106,6 +129,60 @@ describe('adminContent repository', () => {
     })
     const insertImageMock = vi.fn().mockResolvedValue({ error: null })
     const deleteMock = vi.fn()
+
+    const mockClient = {
+      from: vi.fn((table: string) => {
+        if (table === 'events') {
+          return {
+            update: updateEventMock,
+          }
+        }
+        if (table === 'event_images') {
+          return {
+            update: softArchiveMock,
+            insert: insertImageMock,
+            delete: deleteMock,
+          }
+        }
+        return {}
+      }),
+    } as unknown as SupabaseClient
+
+    await updateEvent(
+      mockClient,
+      'evt-1',
+      {
+        title: 'Updated Event',
+        month: '8',
+        content: 'Noi dung chi tiet cua su kien.',
+      } as any,
+      [
+        {
+          image_url: 'https://example.com/new.jpg',
+          storage_path: 'events/new.jpg',
+          alt: 'Updated Image',
+          file_size: 100000,
+          mime_type: 'image/jpeg',
+        },
+      ],
+    )
+
+    expect(updateEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        month: '8',
+        content: 'Noi dung chi tiet cua su kien.',
+      }),
+    )
+    expect(softArchiveMock).toHaveBeenCalledWith(
+      expect.objectContaining({ status: 'archived' }),
+    )
+    expect(deleteMock).not.toHaveBeenCalled()
+  })
+
+  it('does not insert replacement event images when archiving existing images fails', async () => {
+    const mockUpdatedEvent = { id: 'evt-1', title: 'Updated Event' }
+    const archiveError = new Error('Archive failed')
+    const insertImageMock = vi.fn().mockResolvedValue({ error: null })
 
     const mockClient = {
       from: vi.fn((table: string) => {
@@ -122,29 +199,70 @@ describe('adminContent repository', () => {
         }
         if (table === 'event_images') {
           return {
-            update: softArchiveMock,
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                neq: vi.fn().mockResolvedValue({ error: archiveError }),
+              }),
+            }),
             insert: insertImageMock,
-            delete: deleteMock,
           }
         }
         return {}
       }),
     } as unknown as SupabaseClient
 
-    await updateEvent(mockClient, 'evt-1', { title: 'Updated Event' } as any, [
-      {
-        image_url: 'https://example.com/new.jpg',
-        storage_path: 'events/new.jpg',
-        alt: 'Updated Image',
-        file_size: 100000,
-        mime_type: 'image/jpeg',
-      },
-    ])
+    await expect(
+      updateEvent(mockClient, 'evt-1', { title: 'Updated Event' } as any, [
+        {
+          image_url: 'https://example.com/new.jpg',
+          storage_path: 'events/new.jpg',
+          alt: 'Updated Image',
+          file_size: 100000,
+          mime_type: 'image/jpeg',
+        },
+      ]),
+    ).rejects.toThrow('Archive failed')
+    expect(insertImageMock).not.toHaveBeenCalled()
+  })
 
-    expect(softArchiveMock).toHaveBeenCalledWith(
-      expect.objectContaining({ status: 'archived' }),
-    )
-    expect(deleteMock).not.toHaveBeenCalled()
+  it('loads an admin event by slug regardless of draft status', async () => {
+    const mockEvent = {
+      id: 'event-id',
+      slug: 'draft-event',
+      title: 'Draft Event',
+      month: '8',
+      year: '2026',
+      category: 'academic',
+      label: 'Học thuật',
+      summary: 'Summary',
+      content: 'Draft content',
+      featured_home: false,
+      sort_order: 1,
+      status: 'draft',
+      published_at: null,
+      created_at: '',
+      updated_at: '',
+      event_images: [
+        { id: 'img-1', status: 'published' },
+        { id: 'img-2', status: 'archived' },
+      ],
+    }
+    const mockClient = {
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            neq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: mockEvent, error: null }),
+            }),
+          }),
+        }),
+      }),
+    } as unknown as SupabaseClient
+
+    const event = await getAdminEventBySlug(mockClient, 'draft-event')
+
+    expect(event?.status).toBe('draft')
+    expect(event?.event_images).toEqual([expect.objectContaining({ id: 'img-1' })])
   })
 
   it('updateDepartment soft-archives previous responsibilities instead of hard-deleting them', async () => {

@@ -159,6 +159,27 @@ export async function listAdminEvents(client: SupabaseClient): Promise<SupabaseE
   }))
 }
 
+export async function getAdminEventBySlug(
+  client: SupabaseClient,
+  slug: string,
+): Promise<SupabaseEventWithImages | null> {
+  const { data, error } = await client
+    .from('events')
+    .select('*, event_images(*)')
+    .eq('slug', slug)
+    .neq('status', 'archived')
+    .single()
+
+  if (error) throw error
+  if (!data) return null
+
+  const event = data as SupabaseEventWithImages
+  return {
+    ...event,
+    event_images: (event.event_images || []).filter((img) => img.status !== 'archived'),
+  }
+}
+
 export async function createEvent(
   client: SupabaseClient,
   payload: SupabaseEventInsert,
@@ -198,11 +219,13 @@ export async function updateEvent(
 
   if (images !== undefined) {
     // Soft archive previous images (no hard delete)
-    await client
+    const { error: archiveError } = await client
       .from('event_images')
       .update({ status: 'archived', updated_at: new Date().toISOString() })
       .eq('event_id', id)
       .neq('status', 'archived')
+
+    if (archiveError) throw archiveError
 
     if (images.length > 0) {
       const imagePayloads = images.map((img, idx) => toImagePayload(img, id, idx))

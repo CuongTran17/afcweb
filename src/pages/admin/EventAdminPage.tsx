@@ -1,5 +1,6 @@
 import { useEffect, useState, useId } from 'react'
-import { Plus, Edit2, Star, Eye, EyeOff, Trash2, X, Loader2 } from 'lucide-react'
+import { Plus, Edit2, Star, Eye, EyeOff, Trash2, X, Loader2, ArrowUp, ArrowDown } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { AdminConfirmModal } from '../../components/admin/AdminConfirmModal'
 import { ImageUploadField } from '../../components/admin/ImageUploadField'
 import {
@@ -27,6 +28,8 @@ export function EventAdminPage() {
 
   const filterCategoryId = useId()
   const categoryId = useId()
+  const monthId = useId()
+  const contentId = useId()
   const statusId = useId()
   const featuredId = useId()
 
@@ -34,9 +37,11 @@ export function EventAdminPage() {
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [year, setYear] = useState('2026')
+  const [month, setMonth] = useState('1')
   const [category, setCategory] = useState<EventCategory>('academic')
   const [label, setLabel] = useState('Học thuật')
   const [summary, setSummary] = useState('')
+  const [content, setContent] = useState('')
   const [imageList, setImageList] = useState<
     Array<{
       url: string
@@ -74,9 +79,11 @@ export function EventAdminPage() {
     setTitle('')
     setSlug('')
     setYear(new Date().getFullYear().toString())
+    setMonth(String(new Date().getMonth() + 1))
     setCategory('academic')
     setLabel('Học thuật')
     setSummary('')
+    setContent('')
     setImageList([])
     setNewImageUrl('')
     setFeaturedHome(false)
@@ -91,9 +98,11 @@ export function EventAdminPage() {
     setTitle(evt.title)
     setSlug(evt.slug)
     setYear(evt.year)
+    setMonth(evt.month || '1')
     setCategory(evt.category)
     setLabel(evt.label)
     setSummary(evt.summary)
+    setContent(evt.content || '')
     const existingImgs = (evt.event_images || [])
       .filter((img) => img.status === 'published')
       .sort((a, b) => a.sort_order - b.sort_order)
@@ -132,6 +141,29 @@ export function EventAdminPage() {
     setImageList((prev) => prev.filter((_, i) => i !== index))
   }
 
+  const moveImage = (index: number, direction: -1 | 1) => {
+    setImageList((prev) => {
+      const nextIndex = index + direction
+      if (nextIndex < 0 || nextIndex >= prev.length) return prev
+      const next = [...prev]
+      ;[next[index], next[nextIndex]] = [next[nextIndex], next[index]]
+      return next
+    })
+  }
+
+  const setCoverImage = (index: number) => {
+    setImageList((prev) => {
+      if (index <= 0) return prev
+      const next = [...prev]
+      const [selected] = next.splice(index, 1)
+      return [selected, ...next]
+    })
+  }
+
+  const updateImageAlt = (index: number, alt: string) => {
+    setImageList((prev) => prev.map((img, idx) => (idx === index ? { ...img, alt } : img)))
+  }
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     const supabase = getSupabaseClient()
@@ -157,9 +189,11 @@ export function EventAdminPage() {
             title,
             slug,
             year,
+            month,
             category,
             label,
             summary,
+            content,
             featured_home: featuredHome,
             sort_order: sortOrder,
             status,
@@ -173,9 +207,11 @@ export function EventAdminPage() {
             title,
             slug,
             year,
+            month,
             category,
             label,
             summary,
+            content,
             featured_home: featuredHome,
             sort_order: sortOrder,
             status,
@@ -291,6 +327,7 @@ export function EventAdminPage() {
               <thead>
                 <tr>
                   <th style={{ width: '60px' }}>Ảnh</th>
+                  <th style={{ width: '90px' }}>Số ảnh</th>
                   <th>Tên Sự kiện & Tóm tắt</th>
                   <th style={{ width: '90px' }}>Năm</th>
                   <th style={{ width: '110px' }}>Thể loại</th>
@@ -325,6 +362,9 @@ export function EventAdminPage() {
                           }}
                         />
                       )}
+                    </td>
+                    <td style={{ fontWeight: 600 }}>
+                      {evt.event_images?.filter((img) => img.status === 'published').length || 0} ảnh
                     </td>
                     <td>
                       <div style={{ fontWeight: 600, color: '#0f172a' }}>{evt.title}</div>
@@ -381,6 +421,13 @@ export function EventAdminPage() {
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', gap: '0.35rem' }}>
+                        <Link
+                          to={`/admin/events/${evt.slug}/preview`}
+                          className="admin-btn admin-btn--secondary"
+                          title="Xem trước"
+                        >
+                          <Eye size={14} />
+                        </Link>
                         <button
                           type="button"
                           onClick={() => handleToggleStatus(evt)}
@@ -457,7 +504,7 @@ export function EventAdminPage() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                 <div className="admin-form-group">
                   <label className="admin-label">Slug (đường dẫn)</label>
                   <input
@@ -480,6 +527,20 @@ export function EventAdminPage() {
                     className="admin-input"
                     placeholder="2026"
                   />
+                </div>
+
+                <div className="admin-form-group">
+                  <label htmlFor={monthId} className="admin-label">Tháng tổ chức</label>
+                  <select
+                    id={monthId}
+                    value={month}
+                    onChange={(e) => setMonth(e.target.value)}
+                    className="admin-select"
+                  >
+                    {Array.from({ length: 12 }, (_, index) => String(index + 1)).map((value) => (
+                      <option value={value} key={value}>Tháng {value}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -523,6 +584,18 @@ export function EventAdminPage() {
               </div>
 
               <div className="admin-form-group">
+                <label htmlFor={contentId} className="admin-label">Nội dung chi tiết</label>
+                <textarea
+                  id={contentId}
+                  rows={8}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="admin-textarea"
+                  placeholder="Viết recap, mục tiêu, diễn biến chính và dấu ấn của sự kiện..."
+                />
+              </div>
+
+              <div className="admin-form-group">
                 <label className="admin-label">
                   Danh sách hình ảnh sự kiện ({imageList.length} ảnh)
                 </label>
@@ -549,39 +622,79 @@ export function EventAdminPage() {
                         <img
                           src={img.url}
                           alt={`Ảnh sự kiện ${idx + 1}`}
-                          style={{ width: '100%', height: '80px', objectFit: 'cover' }}
+                          style={{ width: '100%', height: '88px', objectFit: 'cover' }}
                         />
                         <div
                           style={{
-                            padding: '0.25rem 0.5rem',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
+                            padding: '0.5rem',
+                            display: 'grid',
+                            gap: '0.45rem',
                             fontSize: '0.75rem',
                           }}
                         >
-                          <span
-                            style={{
-                              fontWeight: 600,
-                              color: idx === 0 ? '#176f90' : '#64748b',
-                            }}
-                          >
-                            {idx === 0 ? 'Ảnh bìa' : `#${idx + 1}`}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(idx)}
-                            style={{
-                              border: 'none',
-                              background: 'transparent',
-                              cursor: 'pointer',
-                              color: '#dc2626',
-                              padding: 0,
-                            }}
-                            title="Xóa ảnh này"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span
+                              style={{
+                                fontWeight: 600,
+                                color: idx === 0 ? '#176f90' : '#64748b',
+                              }}
+                            >
+                              {idx === 0 ? 'Ảnh bìa' : `#${idx + 1}`}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(idx)}
+                              style={{
+                                border: 'none',
+                                background: 'transparent',
+                                cursor: 'pointer',
+                                color: '#dc2626',
+                                padding: 0,
+                              }}
+                              title="Xóa ảnh này"
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                          <input
+                            aria-label={`Alt ảnh ${idx + 1}`}
+                            value={img.alt || ''}
+                            onChange={(e) => updateImageAlt(idx, e.target.value)}
+                            className="admin-input"
+                            style={{ padding: '0.45rem 0.5rem', fontSize: '0.75rem' }}
+                          />
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '0.35rem' }}>
+                            <button
+                              type="button"
+                              onClick={() => setCoverImage(idx)}
+                              disabled={idx === 0}
+                              className="admin-btn admin-btn--secondary"
+                              aria-label={`Đặt ảnh ${idx + 1} làm ảnh bìa`}
+                              style={{ padding: '0.45rem 0.5rem', justifyContent: 'center' }}
+                            >
+                              Bìa
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveImage(idx, -1)}
+                              disabled={idx === 0}
+                              className="admin-btn admin-btn--secondary"
+                              aria-label={`Đưa ảnh ${idx + 1} lên trước`}
+                              style={{ width: '34px', height: '34px', padding: 0, justifyContent: 'center' }}
+                            >
+                              <ArrowUp size={13} aria-hidden="true" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => moveImage(idx, 1)}
+                              disabled={idx === imageList.length - 1}
+                              className="admin-btn admin-btn--secondary"
+                              aria-label={`Đưa ảnh ${idx + 1} xuống sau`}
+                              style={{ width: '34px', height: '34px', padding: 0, justifyContent: 'center' }}
+                            >
+                              <ArrowDown size={13} aria-hidden="true" />
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
