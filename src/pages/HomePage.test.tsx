@@ -117,6 +117,21 @@ describe('home page', () => {
     expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho kiến thức' })).toHaveTextContent(
       'Chuyên môn',
     )
+    const knowledgePopout = screen
+      .getByRole('button', { name: 'Xem hình ảnh minh họa cho kiến thức' })
+      .querySelector('.tagline-reveal__popout')
+    const classroomPopout = screen
+      .getByRole('button', { name: 'Xem hình ảnh minh họa cho giảng đường' })
+      .querySelector('.tagline-reveal__popout')
+    const practicePopout = screen
+      .getByRole('button', { name: 'Xem hình ảnh minh họa cho thực tế' })
+      .querySelector('.tagline-reveal__popout')
+    expect(knowledgePopout).toHaveClass(
+      'tagline-reveal__popout--callout-right',
+    )
+    expect(knowledgePopout).not.toHaveClass('tagline-reveal__popout--curved-callout')
+    expect(classroomPopout).not.toHaveClass('tagline-reveal__popout--curved-callout')
+    expect(practicePopout).not.toHaveClass('tagline-reveal__popout--curved-callout')
     expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho giảng đường' })).toHaveTextContent('Sự kiện')
     expect(screen.getByRole('button', { name: 'Xem hình ảnh minh họa cho thực tế' })).toHaveTextContent('Kết nối')
     expect(screen.getByRole('img', { name: 'Workshop PTIT Edu Exchange' })).toHaveAttribute(

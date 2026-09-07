@@ -17,7 +17,7 @@ const taglinePopouts: Record<string, { alt: string; icon: LucideIcon; image: str
     icon: BookOpenCheck,
     image: '/images/events/edu-exchange-workshop-2.jpg',
     label: 'Chuyên môn',
-    placement: 'tagline-reveal__popout--top-right',
+    placement: 'tagline-reveal__popout--callout-right',
   },
   'giảng đường': {
     alt: 'Lớp đào tạo PTIT Edu Exchange',
@@ -91,7 +91,9 @@ function TaglineReveal() {
                       style={{ transitionDelay: `${index * 45}ms` }}
                     >
                       <span>{segment}</span>
-                      <span className={`tagline-reveal__popout ${taglinePopouts[segment].placement}`}>
+                      <span
+                        className={`tagline-reveal__popout ${taglinePopouts[segment].placement}`}
+                      >
                         <img src={taglinePopouts[segment].image} alt={taglinePopouts[segment].alt} />
                         <span className="tagline-reveal__popout-chip">
                           <PopoutIcon aria-hidden="true" />
