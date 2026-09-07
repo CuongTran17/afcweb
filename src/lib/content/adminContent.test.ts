@@ -61,16 +61,17 @@ describe('adminContent repository', () => {
 
   it('createEvent inserts event and multiple images with metadata', async () => {
     const mockEvent = { id: 'evt-1', title: 'Test Event' }
+    const insertEventMock = vi.fn().mockReturnValue({
+      select: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({ data: mockEvent, error: null }),
+      }),
+    })
     const insertImageMock = vi.fn().mockResolvedValue({ error: null })
     const mockClient = {
       from: vi.fn((table: string) => {
         if (table === 'events') {
           return {
-            insert: vi.fn().mockReturnValue({
-              select: vi.fn().mockReturnValue({
-                single: vi.fn().mockResolvedValue({ data: mockEvent, error: null }),
-              }),
-            }),
+            insert: insertEventMock,
           }
         }
         if (table === 'event_images') {
@@ -87,8 +88,22 @@ describe('adminContent repository', () => {
       { image_url: 'https://example.com/img2.jpg', storage_path: 'events/img2.jpg', alt: 'Test 2', file_size: 120000, mime_type: 'image/jpeg' },
     ]
 
-    const result = await createEvent(mockClient, { title: 'Test Event' } as any, images)
+    const result = await createEvent(
+      mockClient,
+      {
+        title: 'Test Event',
+        month: '8',
+        content: 'Noi dung chi tiet cua su kien.',
+      } as any,
+      images,
+    )
     expect(result).toEqual(mockEvent)
+    expect(insertEventMock).toHaveBeenCalledWith([
+      expect.objectContaining({
+        month: '8',
+        content: 'Noi dung chi tiet cua su kien.',
+      }),
+    ])
     expect(insertImageMock).toHaveBeenCalledWith(
       expect.arrayContaining([
         expect.objectContaining({ event_id: 'evt-1', image_url: 'https://example.com/img1.jpg', sort_order: 1 }),
@@ -99,6 +114,13 @@ describe('adminContent repository', () => {
 
   it('updateEvent soft-archives existing images instead of hard-deleting them', async () => {
     const mockUpdatedEvent = { id: 'evt-1', title: 'Updated Event' }
+    const updateEventMock = vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          single: vi.fn().mockResolvedValue({ data: mockUpdatedEvent, error: null }),
+        }),
+      }),
+    })
     const softArchiveMock = vi.fn().mockReturnValue({
       eq: vi.fn().mockReturnValue({
         neq: vi.fn().mockResolvedValue({ error: null }),
@@ -111,13 +133,7 @@ describe('adminContent repository', () => {
       from: vi.fn((table: string) => {
         if (table === 'events') {
           return {
-            update: vi.fn().mockReturnValue({
-              eq: vi.fn().mockReturnValue({
-                select: vi.fn().mockReturnValue({
-                  single: vi.fn().mockResolvedValue({ data: mockUpdatedEvent, error: null }),
-                }),
-              }),
-            }),
+            update: updateEventMock,
           }
         }
         if (table === 'event_images') {
@@ -131,16 +147,31 @@ describe('adminContent repository', () => {
       }),
     } as unknown as SupabaseClient
 
-    await updateEvent(mockClient, 'evt-1', { title: 'Updated Event' } as any, [
+    await updateEvent(
+      mockClient,
+      'evt-1',
       {
-        image_url: 'https://example.com/new.jpg',
-        storage_path: 'events/new.jpg',
-        alt: 'Updated Image',
-        file_size: 100000,
-        mime_type: 'image/jpeg',
-      },
-    ])
+        title: 'Updated Event',
+        month: '8',
+        content: 'Noi dung chi tiet cua su kien.',
+      } as any,
+      [
+        {
+          image_url: 'https://example.com/new.jpg',
+          storage_path: 'events/new.jpg',
+          alt: 'Updated Image',
+          file_size: 100000,
+          mime_type: 'image/jpeg',
+        },
+      ],
+    )
 
+    expect(updateEventMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        month: '8',
+        content: 'Noi dung chi tiet cua su kien.',
+      }),
+    )
     expect(softArchiveMock).toHaveBeenCalledWith(
       expect.objectContaining({ status: 'archived' }),
     )

@@ -27,6 +27,8 @@ export function EventAdminPage() {
 
   const filterCategoryId = useId()
   const categoryId = useId()
+  const monthId = useId()
+  const contentId = useId()
   const statusId = useId()
   const featuredId = useId()
 
@@ -34,9 +36,11 @@ export function EventAdminPage() {
   const [title, setTitle] = useState('')
   const [slug, setSlug] = useState('')
   const [year, setYear] = useState('2026')
+  const [month, setMonth] = useState('1')
   const [category, setCategory] = useState<EventCategory>('academic')
   const [label, setLabel] = useState('Học thuật')
   const [summary, setSummary] = useState('')
+  const [content, setContent] = useState('')
   const [imageList, setImageList] = useState<
     Array<{
       url: string
@@ -74,9 +78,11 @@ export function EventAdminPage() {
     setTitle('')
     setSlug('')
     setYear(new Date().getFullYear().toString())
+    setMonth(String(new Date().getMonth() + 1))
     setCategory('academic')
     setLabel('Học thuật')
     setSummary('')
+    setContent('')
     setImageList([])
     setNewImageUrl('')
     setFeaturedHome(false)
@@ -91,9 +97,11 @@ export function EventAdminPage() {
     setTitle(evt.title)
     setSlug(evt.slug)
     setYear(evt.year)
+    setMonth(evt.month || '1')
     setCategory(evt.category)
     setLabel(evt.label)
     setSummary(evt.summary)
+    setContent(evt.content || '')
     const existingImgs = (evt.event_images || [])
       .filter((img) => img.status === 'published')
       .sort((a, b) => a.sort_order - b.sort_order)
@@ -157,9 +165,11 @@ export function EventAdminPage() {
             title,
             slug,
             year,
+            month,
             category,
             label,
             summary,
+            content,
             featured_home: featuredHome,
             sort_order: sortOrder,
             status,
@@ -173,9 +183,11 @@ export function EventAdminPage() {
             title,
             slug,
             year,
+            month,
             category,
             label,
             summary,
+            content,
             featured_home: featuredHome,
             sort_order: sortOrder,
             status,
@@ -457,7 +469,7 @@ export function EventAdminPage() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
                 <div className="admin-form-group">
                   <label className="admin-label">Slug (đường dẫn)</label>
                   <input
@@ -480,6 +492,20 @@ export function EventAdminPage() {
                     className="admin-input"
                     placeholder="2026"
                   />
+                </div>
+
+                <div className="admin-form-group">
+                  <label htmlFor={monthId} className="admin-label">Tháng tổ chức</label>
+                  <select
+                    id={monthId}
+                    value={month}
+                    onChange={(e) => setMonth(e.target.value)}
+                    className="admin-select"
+                  >
+                    {Array.from({ length: 12 }, (_, index) => String(index + 1)).map((value) => (
+                      <option value={value} key={value}>Tháng {value}</option>
+                    ))}
+                  </select>
                 </div>
               </div>
 
@@ -519,6 +545,18 @@ export function EventAdminPage() {
                   onChange={(e) => setSummary(e.target.value)}
                   className="admin-textarea"
                   placeholder="Mô tả ngắn gọn về chương trình, dấu mốc đạt được..."
+                />
+              </div>
+
+              <div className="admin-form-group">
+                <label htmlFor={contentId} className="admin-label">Nội dung chi tiết</label>
+                <textarea
+                  id={contentId}
+                  rows={8}
+                  value={content}
+                  onChange={(e) => setContent(e.target.value)}
+                  className="admin-textarea"
+                  placeholder="Viết recap, mục tiêu, diễn biến chính và dấu ấn của sự kiện..."
                 />
               </div>
 
