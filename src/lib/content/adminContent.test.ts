@@ -7,6 +7,7 @@ import {
   toggleEventFeaturedHome,
   createEvent,
   createDefaultDepartments,
+  getAdminEventBySlug,
   updateEvent,
   updateDepartment,
 } from './adminContent'
@@ -176,6 +177,46 @@ describe('adminContent repository', () => {
       expect.objectContaining({ status: 'archived' }),
     )
     expect(deleteMock).not.toHaveBeenCalled()
+  })
+
+  it('loads an admin event by slug regardless of draft status', async () => {
+    const mockEvent = {
+      id: 'event-id',
+      slug: 'draft-event',
+      title: 'Draft Event',
+      month: '8',
+      year: '2026',
+      category: 'academic',
+      label: 'Học thuật',
+      summary: 'Summary',
+      content: 'Draft content',
+      featured_home: false,
+      sort_order: 1,
+      status: 'draft',
+      published_at: null,
+      created_at: '',
+      updated_at: '',
+      event_images: [
+        { id: 'img-1', status: 'published' },
+        { id: 'img-2', status: 'archived' },
+      ],
+    }
+    const mockClient = {
+      from: vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            neq: vi.fn().mockReturnValue({
+              single: vi.fn().mockResolvedValue({ data: mockEvent, error: null }),
+            }),
+          }),
+        }),
+      }),
+    } as unknown as SupabaseClient
+
+    const event = await getAdminEventBySlug(mockClient, 'draft-event')
+
+    expect(event?.status).toBe('draft')
+    expect(event?.event_images).toEqual([expect.objectContaining({ id: 'img-1' })])
   })
 
   it('updateDepartment soft-archives previous responsibilities instead of hard-deleting them', async () => {

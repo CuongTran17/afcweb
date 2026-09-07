@@ -25,6 +25,9 @@ const BannerAdminPage = lazy(() =>
 const EventAdminPage = lazy(() =>
   import('./pages/admin/EventAdminPage').then((m) => ({ default: m.EventAdminPage })),
 )
+const EventPreviewPage = lazy(() =>
+  import('./pages/admin/EventPreviewPage').then((m) => ({ default: m.EventPreviewPage })),
+)
 const DepartmentAdminPage = lazy(() =>
   import('./pages/admin/DepartmentAdminPage').then((m) => ({ default: m.DepartmentAdminPage })),
 )
@@ -117,6 +120,7 @@ export default function App() {
         <Route index element={<AdminDashboardPage />} />
         <Route path="banners" element={<BannerAdminPage />} />
         <Route path="events" element={<EventAdminPage />} />
+        <Route path="events/:slug/preview" element={<EventPreviewPage />} />
         <Route path="departments" element={<DepartmentAdminPage />} />
         <Route path="leaders" element={<LeaderAdminPage />} />
       </Route>

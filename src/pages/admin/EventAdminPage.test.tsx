@@ -1,5 +1,6 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { EventAdminPage } from './EventAdminPage'
 
@@ -24,6 +25,14 @@ vi.mock('../../lib/supabase/client', () => ({
   getSupabaseClient: mocks.getSupabaseClient,
 }))
 
+function renderEventAdminPage() {
+  render(
+    <MemoryRouter>
+      <EventAdminPage />
+    </MemoryRouter>,
+  )
+}
+
 describe('EventAdminPage', () => {
   beforeEach(() => {
     vi.clearAllMocks()
@@ -34,7 +43,7 @@ describe('EventAdminPage', () => {
 
   it('saves month and detailed content from the create form', async () => {
     const user = userEvent.setup()
-    render(<EventAdminPage />)
+    renderEventAdminPage()
 
     await user.click(await screen.findByRole('button', { name: 'Thêm Sự kiện mới' }))
 
@@ -111,7 +120,7 @@ describe('EventAdminPage', () => {
     ])
     mocks.updateEvent.mockResolvedValue({ id: 'evt-1', title: 'Sự kiện có nhiều ảnh' })
 
-    render(<EventAdminPage />)
+    renderEventAdminPage()
 
     expect(await screen.findByText('2 ảnh')).toBeInTheDocument()
     await user.click(screen.getByTitle('Chỉnh sửa'))

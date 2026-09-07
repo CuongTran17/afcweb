@@ -159,6 +159,27 @@ export async function listAdminEvents(client: SupabaseClient): Promise<SupabaseE
   }))
 }
 
+export async function getAdminEventBySlug(
+  client: SupabaseClient,
+  slug: string,
+): Promise<SupabaseEventWithImages | null> {
+  const { data, error } = await client
+    .from('events')
+    .select('*, event_images(*)')
+    .eq('slug', slug)
+    .neq('status', 'archived')
+    .single()
+
+  if (error) throw error
+  if (!data) return null
+
+  const event = data as SupabaseEventWithImages
+  return {
+    ...event,
+    event_images: (event.event_images || []).filter((img) => img.status !== 'archived'),
+  }
+}
+
 export async function createEvent(
   client: SupabaseClient,
   payload: SupabaseEventInsert,

@@ -1,5 +1,6 @@
 import { useEffect, useState, useId } from 'react'
 import { Plus, Edit2, Star, Eye, EyeOff, Trash2, X, Loader2, ArrowUp, ArrowDown } from 'lucide-react'
+import { Link } from 'react-router-dom'
 import { AdminConfirmModal } from '../../components/admin/AdminConfirmModal'
 import { ImageUploadField } from '../../components/admin/ImageUploadField'
 import {
@@ -420,6 +421,13 @@ export function EventAdminPage() {
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       <div style={{ display: 'inline-flex', gap: '0.35rem' }}>
+                        <Link
+                          to={`/admin/events/${evt.slug}/preview`}
+                          className="admin-btn admin-btn--secondary"
+                          title="Xem trước"
+                        >
+                          <Eye size={14} />
+                        </Link>
                         <button
                           type="button"
                           onClick={() => handleToggleStatus(evt)}
