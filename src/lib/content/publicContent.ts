@@ -79,6 +79,30 @@ export async function getPublicEvents(
   }
 }
 
+export async function getPublicEventBySlug(
+  slug: string,
+  client?: SupabaseClient | null,
+): Promise<EventItem | null> {
+  const supabase = client ?? getSupabaseClient()
+  const staticEvent = staticEvents.find((event) => event.id === slug) || null
+  if (!supabase) return staticEvent
+
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*, event_images(*)')
+      .eq('status', 'published')
+      .eq('slug', slug)
+      .single()
+
+    if (error || !data) return staticEvent
+
+    return mapEventRowsToEventItems([data as SupabaseEventWithImages])[0] || staticEvent
+  } catch {
+    return staticEvent
+  }
+}
+
 export async function getFeaturedHomeEvents(
   client?: SupabaseClient | null,
 ): Promise<EventItem[]> {

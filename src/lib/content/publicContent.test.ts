@@ -4,6 +4,7 @@ import {
   getFeaturedHomeEvents,
   getPublicBanners,
   getPublicDepartments,
+  getPublicEventBySlug,
   getPublicEvents,
   getPublicLeadership,
 } from './publicContent'
@@ -31,6 +32,15 @@ describe('publicContent repository', () => {
 
     const gens = await getAvailableGenerations(null)
     expect(gens).toEqual([])
+  })
+
+  it('returns a static event by slug when Supabase is unavailable', async () => {
+    const event = await getPublicEventBySlug('trading-challenge-2026', null)
+
+    expect(event).toMatchObject({
+      id: 'trading-challenge-2026',
+      title: 'Chung kết PTIT Trading Challenge',
+    })
   })
 
   it('falls back to static data if supabase query errors out', async () => {

@@ -3,6 +3,7 @@ import { Route, Routes } from 'react-router-dom'
 import { SiteFooter } from './components/SiteFooter'
 import { SiteHeader } from './components/SiteHeader'
 import { ActivitiesPage } from './pages/ActivitiesPage'
+import { EventDetailPage } from './pages/EventDetailPage'
 import { HomePage } from './pages/HomePage'
 import { StructurePage } from './pages/StructurePage'
 
@@ -80,6 +81,14 @@ export default function App() {
         element={
           <PublicLayout>
             <ActivitiesPage />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/hoat-dong/:slug"
+        element={
+          <PublicLayout>
+            <EventDetailPage />
           </PublicLayout>
         }
       />
