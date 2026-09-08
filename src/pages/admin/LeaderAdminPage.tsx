@@ -380,7 +380,7 @@ export function LeaderAdminPage() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="admin-form-row">
                 <div className="admin-form-group">
                   <label className="admin-label">Chức vụ</label>
                   <input
@@ -410,7 +410,7 @@ export function LeaderAdminPage() {
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <div className="admin-form-row">
                 <div className="admin-form-group">
                   <label className="admin-label">Khóa / Nhiệm kỳ (Generation)</label>
                   <input

@@ -348,7 +348,7 @@ export function BannerAdminPage() {
                 slug={title.toLowerCase().replace(/[^a-z0-9]/g, '-') || 'banner'}
               />
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: '1rem' }}>
+              <div className="admin-form-row admin-form-row--link-order">
                 <div className="admin-form-group">
                   <label className="admin-label">Đường dẫn liên kết (tùy chọn)</label>
                   <input

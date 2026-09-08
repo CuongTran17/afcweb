@@ -417,6 +417,16 @@
   margin-bottom: 1.5rem;
 }
 
+.admin-form-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-form-row--link-order {
+  grid-template-columns: minmax(0, 1fr) 120px;
+}
+
 .admin-label {
   display: block;
   margin-bottom: .5rem;
@@ -777,6 +787,20 @@
 
   .admin-card {
     padding: 1rem;
+  }
+
+  .admin-form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .admin-login {
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  .admin-login__card {
+    padding: 1.5rem;
   }
 }
 
