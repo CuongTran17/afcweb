@@ -55,7 +55,7 @@ export function EventDetailPage() {
             <span>{categoryLabels[event.category]}</span>
             <span>{event.label}</span>
           </div>
-          <EventImageSlider title={event.title} images={event.images} />
+          <EventImageSlider title={event.title} images={event.images} showThumbnails={false} />
         </header>
         <section className="event-detail__body">
           <p className="event-detail__summary">{event.summary}</p>

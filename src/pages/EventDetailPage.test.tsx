@@ -33,6 +33,21 @@ describe('EventDetailPage', () => {
     )
   })
 
+  it('does not repeat slideshow images as thumbnail buttons below the stage', async () => {
+    renderDetail('trading-challenge-2026')
+
+    await screen.findByRole('heading', {
+      level: 1,
+      name: 'Chung kết PTIT Trading Challenge',
+    })
+
+    expect(
+      screen.queryByRole('button', {
+        name: 'Xem ảnh 1 của Chung kết PTIT Trading Challenge',
+      }),
+    ).not.toBeInTheDocument()
+  })
+
   it('shows a not-found state for an unknown event', async () => {
     renderDetail('khong-co-su-kien')
 
