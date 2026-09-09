@@ -42,6 +42,22 @@ describe('event card photography', () => {
     )
   })
 
+  it('shows the event month together with its year', () => {
+    renderCard()
+
+    expect(screen.getByText('Tháng 4, 2026', { selector: 'time' })).toBeInTheDocument()
+  })
+
+  it('falls back to the year when the event month is unavailable', () => {
+    render(
+      <MemoryRouter>
+        <EventCard event={{ ...eventWithHorizontalGallery, month: '' }} />
+      </MemoryRouter>,
+    )
+
+    expect(screen.getByText('2026', { selector: 'time' })).toBeInTheDocument()
+  })
+
   it('lets visitors move through every photo in the event gallery', async () => {
     const user = userEvent.setup()
     renderCard()

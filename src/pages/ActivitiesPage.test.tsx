@@ -25,4 +25,17 @@ describe('activities page', () => {
     expect(screen.getByText('Biggame AFC 2026')).toBeInTheDocument()
     expect(screen.queryByText('Chung kết PTIT Trading Challenge')).not.toBeInTheDocument()
   })
+
+  it('labels the community category as Đoàn Thanh Niên', async () => {
+    const user = userEvent.setup()
+    renderActivitiesPage()
+
+    expect(screen.getByText('Học thuật · Đoàn Thanh Niên · Nội bộ')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Cộng đồng' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Đoàn Thanh Niên' }))
+
+    expect(screen.getByText('The Moneyverse 2025')).toBeInTheDocument()
+    expect(screen.queryByText('Chung kết PTIT Trading Challenge')).not.toBeInTheDocument()
+  })
 })

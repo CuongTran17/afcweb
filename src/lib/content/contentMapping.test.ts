@@ -68,6 +68,30 @@ describe('contentMapping', () => {
     expect(mapped[1].images).toEqual(['/img-1.jpg', '/img-2.jpg'])
   })
 
+  it('normalizes the legacy Cộng đồng activity label from Supabase', () => {
+    const mapped = mapEventRowsToEventItems([
+      {
+        id: 'community-event',
+        title: 'Community event',
+        slug: 'community-event',
+        year: '2026',
+        month: '8',
+        category: 'community',
+        label: 'Cộng đồng',
+        summary: 'Summary',
+        content: '',
+        featured_home: false,
+        status: 'published' as const,
+        sort_order: 1,
+        created_at: '',
+        updated_at: '',
+        event_images: [],
+      },
+    ])
+
+    expect(mapped[0].label).toBe('Đoàn Thanh Niên')
+  })
+
   it('maps Supabase departments with responsibilities correctly', () => {
     const rawDepartments = [
       {

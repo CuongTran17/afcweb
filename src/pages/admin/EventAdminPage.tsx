@@ -332,7 +332,7 @@ export function EventAdminPage() {
           >
             <option value="all">Tất cả thể loại</option>
             <option value="academic">Học thuật (academic)</option>
-            <option value="community">Cộng đồng (community)</option>
+            <option value="community">Đoàn Thanh Niên (community)</option>
             <option value="internal">Nội bộ (internal)</option>
           </select>
         </div>
@@ -639,7 +639,7 @@ export function EventAdminPage() {
                     className="admin-select"
                   >
                     <option value="academic">Học thuật (academic)</option>
-                    <option value="community">Cộng đồng (community)</option>
+                    <option value="community">Đoàn Thanh Niên (community)</option>
                     <option value="internal">Nội bộ (internal)</option>
                   </select>
                 </div>

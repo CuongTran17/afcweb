@@ -50,6 +50,8 @@ describe('EventAdminPage', () => {
     const monthSelect = screen.getByLabelText('Tháng tổ chức')
     expect(monthSelect).toBeInTheDocument()
     expect(screen.getByLabelText('Nội dung chi tiết')).toBeInTheDocument()
+    expect(screen.getAllByRole('option', { name: 'Đoàn Thanh Niên (community)' })).toHaveLength(2)
+    expect(screen.queryByRole('option', { name: 'Cộng đồng (community)' })).not.toBeInTheDocument()
 
     await user.type(screen.getByPlaceholderText('VD: Chung kết PTIT Trading Challenge'), 'Sự kiện mới')
     await user.clear(screen.getByPlaceholderText('2026'))

@@ -30,7 +30,7 @@ export function mapEventRowsToEventItems(rows: SupabaseEventWithImages[]): Event
       month: event.month || '',
       year: event.year,
       category: event.category,
-      label: event.label,
+      label: event.label === 'Cộng đồng' ? 'Đoàn Thanh Niên' : event.label,
       summary: event.summary,
       content: event.content || '',
       images: (event.event_images || [])

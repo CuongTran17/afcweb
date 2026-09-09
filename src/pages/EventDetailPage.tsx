@@ -7,7 +7,7 @@ import { getPublicEventBySlug } from '../lib/content/publicContent'
 
 const categoryLabels: Record<EventItem['category'], string> = {
   academic: 'Học thuật & chuyên môn',
-  community: 'Cộng đồng',
+  community: 'Đoàn Thanh Niên',
   internal: 'Nội bộ',
 }
 
@@ -49,11 +49,12 @@ export function EventDetailPage() {
     <main id="main-content" className="event-detail">
       <article>
         <header className="event-detail__header">
-          <h1>{event.title}</h1>
-          <div className="event-detail__meta">
-            <time>{formatEventDate(event)}</time>
-            <span>{categoryLabels[event.category]}</span>
-            <span>{event.label}</span>
+          <div className="event-detail__heading-row">
+            <h1>{event.title}</h1>
+            <div className="event-detail__meta">
+              <time>{formatEventDate(event)}</time>
+              <span>{categoryLabels[event.category]}</span>
+            </div>
           </div>
           <EventImageSlider title={event.title} images={event.images} showThumbnails={false} />
         </header>

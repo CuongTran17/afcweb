@@ -11,6 +11,9 @@ type EventCardProps = {
 export function EventCard({ event, featured = false }: EventCardProps) {
   const [activeImage, setActiveImage] = useState(0)
   const hasGallery = event.images.length > 1
+  const eventDate = event.month
+    ? `Tháng ${Number.parseInt(event.month, 10)}, ${event.year}`
+    : event.year
   const showPreviousImage = () => {
     setActiveImage((current) => (current - 1 + event.images.length) % event.images.length)
   }
@@ -51,7 +54,7 @@ export function EventCard({ event, featured = false }: EventCardProps) {
       <div className="event-card__body">
         <div className="event-card__meta">
           <span>{event.label}</span>
-          <time>{event.year}</time>
+          <time>{eventDate}</time>
         </div>
         <h3>
           <Link to={`/hoat-dong/${event.id}`} aria-label={`Xem chi tiết ${event.title}`}>

@@ -24,6 +24,13 @@ describe('EventDetailPage', () => {
     ).toBeInTheDocument()
     expect(screen.getByText(/Tháng .*2026/)).toBeInTheDocument()
     expect(screen.getByText('Học thuật & chuyên môn')).toBeInTheDocument()
+    expect(screen.queryByText('Học thuật')).not.toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', {
+        level: 1,
+        name: 'Chung kết PTIT Trading Challenge',
+      }).closest('.event-detail__heading-row'),
+    ).toContainElement(screen.getByText(/Tháng .*2026/))
     expect(
       screen.getByRole('img', { name: /Chung kết PTIT Trading Challenge - ảnh 1/ }),
     ).toBeInTheDocument()
@@ -46,6 +53,15 @@ describe('EventDetailPage', () => {
         name: 'Xem ảnh 1 của Chung kết PTIT Trading Challenge',
       }),
     ).not.toBeInTheDocument()
+  })
+
+  it('uses the Đoàn Thanh Niên label for community events', async () => {
+    renderDetail('moneyverse-2025')
+
+    await screen.findByRole('heading', { level: 1, name: 'The Moneyverse 2025' })
+
+    expect(screen.getByText('Đoàn Thanh Niên')).toBeInTheDocument()
+    expect(screen.queryByText('Cộng đồng')).not.toBeInTheDocument()
   })
 
   it('shows a not-found state for an unknown event', async () => {

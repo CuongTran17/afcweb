@@ -9,7 +9,7 @@ type FilterValue = 'all' | EventCategory
 const filters: Array<{ value: FilterValue; label: string }> = [
   { value: 'all', label: 'Tất cả' },
   { value: 'academic', label: 'Học thuật & chuyên môn' },
-  { value: 'community', label: 'Cộng đồng' },
+  { value: 'community', label: 'Đoàn Thanh Niên' },
   { value: 'internal', label: 'Nội bộ' },
 ]
 
@@ -37,7 +37,7 @@ export function ActivitiesPage() {
         <img src="/images/events/biggame-2026-2.jpg" alt="Thành viên AFC tại Biggame 2026" />
         <div className="activity-hero__veil" />
         <div className="activity-hero__content">
-          <p className="activity-hero__eyebrow">Học thuật · Cộng đồng · Nội bộ</p>
+          <p className="activity-hero__eyebrow">Học thuật · Đoàn Thanh Niên · Nội bộ</p>
           <h1>Hoạt động</h1>
           <span className="activity-hero__desc">Những dấu mốc được tạo nên từ tinh thần chủ động, trách nhiệm và cùng nhau trưởng thành.</span>
         </div>

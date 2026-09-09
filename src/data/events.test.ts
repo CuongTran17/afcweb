@@ -8,4 +8,8 @@ describe('events', () => {
   it('provides at least one real image for every published event', () => {
     expect(events.every((event) => event.images.length > 0)).toBe(true)
   })
+
+  it('does not use the old Cộng đồng display label for activity cards', () => {
+    expect(events.some((event) => event.label === 'Cộng đồng')).toBe(false)
+  })
 })

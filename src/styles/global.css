@@ -213,8 +213,9 @@ h1, h2, h3 { font-family: "Be Vietnam Pro", sans-serif; text-wrap: balance; }
 .event-detail { padding: 7rem max(1.25rem, calc((100% - var(--content)) / 2)) var(--section-space); color: var(--ink); background: var(--paper); }
 .event-detail article { display: grid; gap: 3rem; }
 .event-detail__header { display: grid; gap: 1.5rem; }
-.event-detail__header h1 { max-width: 980px; margin: 0; font-size: 4.2rem; line-height: 1.04; color: var(--ink); }
-.event-detail__meta { display: flex; flex-wrap: wrap; gap: .75rem; color: var(--cyan-ink); font-weight: 800; }
+.event-detail__heading-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(280px,360px); align-items: end; gap: 2rem; }
+.event-detail__header h1 { margin: 0; font-size: 4.2rem; line-height: 1.04; color: var(--ink); }
+.event-detail__meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: .75rem; color: var(--cyan-ink); font-weight: 800; }
 .event-detail__meta span, .event-detail__meta time { padding: .45rem .7rem; border: 1px solid var(--gray); border-radius: var(--radius-sm); background: var(--white); }
 .event-detail__body { width: 100%; max-width: 920px; margin-inline: auto; display: grid; gap: 1.4rem; }
 .event-detail__summary { margin: 0; color: var(--ink); font-size: 1.35rem; line-height: 1.6; font-weight: 600; }
@@ -339,6 +340,8 @@ h1, h2, h3 { font-family: "Be Vietnam Pro", sans-serif; text-wrap: balance; }
 @media (max-width: 920px) {
   .section--intro { grid-template-columns: 1fr; gap: 2.5rem; }
   .intro-logo-panel { position: static; width: min(280px,70vw); }
+  .event-detail__heading-row { grid-template-columns: 1fr; gap: 1.5rem; }
+  .event-detail__meta { justify-content: flex-start; }
 }
 
 @media (max-width: 760px) {

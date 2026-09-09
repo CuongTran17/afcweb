@@ -122,7 +122,7 @@ export const events: EventItem[] = [
     month: '8',
     year: '2026',
     category: 'community',
-    label: 'Cộng đồng',
+    label: 'Đoàn Thanh Niên',
     summary: 'AFC đồng hành tư vấn, kết nối và giới thiệu môi trường học tập của Học viện tới học sinh và phụ huynh.',
     content: 'Noi dung chi tiet dang duoc AFC cap nhat cho hoat dong nay.',
     images: [eventImage('open-day-2026-2.jpg'), eventImage('open-day-2026-1.jpg')],
